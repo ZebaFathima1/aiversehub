@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import { Calendar, MapPin, Users } from "lucide-react";
+import { Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ScrollReveal from "@/components/animations/ScrollReveal";
+import AnimatedCard from "@/components/animations/AnimatedCard";
 
 interface Event {
   id: number;
@@ -42,6 +43,8 @@ const events: Event[] = [
     image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&h=400&fit=crop",
   },
 ];
+
+const cardVariants = ["flip", "scale", "rotate"] as const;
 
 const EventsTimeline = () => {
   return (
@@ -115,19 +118,15 @@ const EventsTimeline = () => {
               />
 
               {/* Content Card */}
-              <ScrollReveal
-                direction={index % 2 === 0 ? "left" : "right"}
-                delay={index * 0.15}
+              <AnimatedCard
+                variant={cardVariants[index % cardVariants.length]}
+                index={index}
                 className={cn(
                   "ml-16 md:ml-0 md:w-1/2",
                   index % 2 === 0 ? "md:pr-12" : "md:pl-12"
                 )}
               >
-                <motion.div
-                  className="bg-card rounded-2xl shadow-elevated overflow-hidden group"
-                  whileHover={{ y: -8, scale: 1.02 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                >
+                <div className="bg-card rounded-2xl shadow-elevated overflow-hidden group">
                   {/* Image */}
                   <div className="relative h-48 overflow-hidden">
                     <motion.img
@@ -161,7 +160,7 @@ const EventsTimeline = () => {
                       {event.description}
                     </p>
                     
-                    {/* Highlights */}
+                    {/* Highlights with staggered animation */}
                     <div className="flex flex-wrap gap-2">
                       {event.highlights.map((highlight, idx) => (
                         <motion.span
@@ -171,15 +170,19 @@ const EventsTimeline = () => {
                           whileInView={{ opacity: 1, scale: 1 }}
                           viewport={{ once: true }}
                           transition={{ delay: 0.5 + idx * 0.1 }}
-                          whileHover={{ scale: 1.05, backgroundColor: "hsl(var(--primary) / 0.1)" }}
+                          whileHover={{ 
+                            scale: 1.1, 
+                            backgroundColor: "hsl(var(--primary) / 0.1)",
+                            color: "hsl(var(--primary))",
+                          }}
                         >
                           {highlight}
                         </motion.span>
                       ))}
                     </div>
                   </div>
-                </motion.div>
-              </ScrollReveal>
+                </div>
+              </AnimatedCard>
             </div>
           ))}
         </div>

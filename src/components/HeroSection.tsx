@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import TextReveal from "@/components/animations/TextReveal";
 import FloatingParticles from "@/components/animations/FloatingParticles";
 import GlowingOrbs from "@/components/animations/GlowingOrbs";
-import ScrollReveal from "@/components/animations/ScrollReveal";
+import AnimatedCard from "@/components/animations/AnimatedCard";
 
 const HeroSection = () => {
   const containerVariants = {
@@ -38,6 +38,12 @@ const HeroSection = () => {
     { Icon: Bot, delay: 2, x: "10%", y: "60%" },
     { Icon: Zap, delay: 1.5, x: "85%", y: "65%" },
     { Icon: Sparkles, delay: 0.5, x: "20%", y: "80%" },
+  ];
+
+  const stats = [
+    { value: "500+", label: "Participants" },
+    { value: "4", label: "Major Events" },
+    { value: "50+", label: "Workshops" },
   ];
 
   return (
@@ -159,34 +165,38 @@ const HeroSection = () => {
             </a>
           </motion.div>
 
-          {/* Stats */}
-          <motion.div
-            variants={itemVariants}
-            className="grid grid-cols-3 gap-8 mt-20 max-w-2xl mx-auto"
-          >
-            {[
-              { value: "500+", label: "Participants" },
-              { value: "4", label: "Major Events" },
-              { value: "50+", label: "Workshops" },
-            ].map((stat, index) => (
-              <motion.div
+          {/* Stats Cards */}
+          <div className="grid grid-cols-3 gap-4 md:gap-8 mt-20 max-w-2xl mx-auto">
+            {stats.map((stat, index) => (
+              <AnimatedCard
                 key={index}
-                className="text-center"
-                whileHover={{ scale: 1.1, y: -5 }}
-                transition={{ type: "spring", stiffness: 300 }}
+                index={index}
+                variant={index === 0 ? "bounce" : index === 1 ? "scale" : "flip"}
+                className="text-center glass-card rounded-2xl p-4 md:p-6"
               >
                 <motion.div
-                  className="text-3xl md:text-4xl font-display font-bold text-primary-foreground mb-1"
+                  className="text-2xl md:text-4xl font-display font-bold text-primary-foreground mb-1"
                   initial={{ opacity: 0, scale: 0.5 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 1 + index * 0.1, type: "spring" }}
+                  transition={{ delay: 1.2 + index * 0.1, type: "spring" }}
                 >
-                  {stat.value}
+                  <motion.span
+                    animate={{ 
+                      textShadow: [
+                        "0 0 10px hsl(221 83% 53% / 0.3)",
+                        "0 0 20px hsl(221 83% 53% / 0.5)",
+                        "0 0 10px hsl(221 83% 53% / 0.3)",
+                      ]
+                    }}
+                    transition={{ duration: 2, repeat: Infinity, delay: index * 0.3 }}
+                  >
+                    {stat.value}
+                  </motion.span>
                 </motion.div>
-                <div className="text-sm text-primary-foreground/50">{stat.label}</div>
-              </motion.div>
+                <div className="text-xs md:text-sm text-primary-foreground/50">{stat.label}</div>
+              </AnimatedCard>
             ))}
-          </motion.div>
+          </div>
         </div>
       </motion.div>
 
