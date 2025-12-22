@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import ScrollReveal from "@/components/animations/ScrollReveal";
 import GlowingOrbs from "@/components/animations/GlowingOrbs";
 import FloatingParticles from "@/components/animations/FloatingParticles";
+import AnimatedCard from "@/components/animations/AnimatedCard";
 
 const UpcomingEvent = () => {
   const eventDetails = {
@@ -19,6 +20,12 @@ const UpcomingEvent = () => {
       { icon: Star, title: "Hackathon", description: "24-hour coding challenge with prizes" },
     ],
   };
+
+  const infoCards = [
+    { icon: Calendar, label: "Date", value: eventDetails.date },
+    { icon: Clock, label: "Time", value: eventDetails.time },
+    { icon: MapPin, label: "Venue", value: eventDetails.venue },
+  ];
 
   return (
     <section id="upcoming" className="py-24 relative overflow-hidden">
@@ -61,12 +68,14 @@ const UpcomingEvent = () => {
             <div className="text-center mb-12">
               <motion.h2
                 className="text-5xl md:text-7xl font-display font-bold text-primary-foreground mb-4"
-                animate={{ backgroundPosition: ["0% center", "200% center"] }}
-                transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
               >
-                <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent bg-[length:200%_auto]">
+                <motion.span 
+                  className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent bg-[length:200%_auto]"
+                  animate={{ backgroundPosition: ["0% center", "200% center"] }}
+                  transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+                >
                   {eventDetails.title}
-                </span>
+                </motion.span>
               </motion.h2>
               <p className="text-xl text-primary-foreground/70 max-w-xl mx-auto">
                 {eventDetails.tagline}
@@ -74,22 +83,23 @@ const UpcomingEvent = () => {
             </div>
           </ScrollReveal>
 
-          {/* Event Info Cards */}
+          {/* Event Info Cards - Different animations for each */}
           <div className="grid md:grid-cols-3 gap-6 mb-12">
-            {[
-              { icon: Calendar, label: "Date", value: eventDetails.date },
-              { icon: Clock, label: "Time", value: eventDetails.time },
-              { icon: MapPin, label: "Venue", value: eventDetails.venue },
-            ].map((info, index) => (
-              <ScrollReveal key={index} delay={0.2 + index * 0.1}>
+            {infoCards.map((info, index) => (
+              <AnimatedCard
+                key={index}
+                index={index}
+                variant={index === 0 ? "slide" : index === 1 ? "bounce" : "blur"}
+              >
                 <motion.div
                   className="glass-card rounded-2xl p-6 text-center group"
-                  whileHover={{ y: -8, scale: 1.02 }}
-                  transition={{ type: "spring", stiffness: 300 }}
+                  whileHover={{ 
+                    boxShadow: "0 0 30px hsl(221 83% 53% / 0.3)",
+                  }}
                 >
                   <motion.div
                     className="w-14 h-14 rounded-xl gradient-bg flex items-center justify-center mx-auto mb-4 group-hover:shadow-glow transition-shadow"
-                    whileHover={{ rotate: [0, -10, 10, 0] }}
+                    whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
                     transition={{ duration: 0.5 }}
                   >
                     <info.icon className="w-7 h-7 text-primary-foreground" />
@@ -97,22 +107,33 @@ const UpcomingEvent = () => {
                   <h3 className="font-semibold text-primary-foreground mb-1">{info.label}</h3>
                   <p className="text-primary-foreground/70">{info.value}</p>
                 </motion.div>
-              </ScrollReveal>
+              </AnimatedCard>
             ))}
           </div>
 
-          {/* Highlights */}
+          {/* Highlights - Each with unique animation */}
           <div className="grid md:grid-cols-3 gap-6 mb-12">
             {eventDetails.highlights.map((highlight, index) => (
-              <ScrollReveal key={index} delay={0.4 + index * 0.1}>
+              <AnimatedCard
+                key={index}
+                index={index}
+                variant={index === 0 ? "rotate" : index === 1 ? "flip" : "scale"}
+              >
                 <motion.div
-                  className="glass-card rounded-2xl p-8 group"
-                  whileHover={{ y: -8 }}
-                  transition={{ type: "spring", stiffness: 300 }}
+                  className="glass-card rounded-2xl p-8 group h-full"
+                  whileHover={{
+                    background: "linear-gradient(145deg, hsl(0 0% 100% / 0.15) 0%, hsl(0 0% 100% / 0.08) 100%)",
+                  }}
                 >
                   <motion.div
                     className="w-12 h-12 rounded-xl bg-secondary/20 flex items-center justify-center mb-4 group-hover:bg-secondary/30 transition-colors"
-                    whileHover={{ scale: 1.1, rotate: 5 }}
+                    whileHover={{ scale: 1.2, rotate: 10 }}
+                    animate={{
+                      y: [0, -5, 0],
+                    }}
+                    transition={{
+                      y: { duration: 2, repeat: Infinity, delay: index * 0.3 }
+                    }}
                   >
                     <highlight.icon className="w-6 h-6 text-secondary" />
                   </motion.div>
@@ -121,7 +142,7 @@ const UpcomingEvent = () => {
                   </h3>
                   <p className="text-primary-foreground/60">{highlight.description}</p>
                 </motion.div>
-              </ScrollReveal>
+              </AnimatedCard>
             ))}
           </div>
 
