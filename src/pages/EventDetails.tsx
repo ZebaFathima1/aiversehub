@@ -177,7 +177,7 @@ const EventDetails = () => {
                   {highlights.map((item, index) => (
                     <motion.div
                       key={index}
-                      className="bg-card rounded-xl p-6 text-center border border-border hover:border-primary/30 transition-colors"
+                      className="bg-muted/80 rounded-xl p-6 text-center border border-border hover:border-primary/30 transition-colors"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.2 + index * 0.1 }}
