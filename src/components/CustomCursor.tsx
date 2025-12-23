@@ -36,13 +36,13 @@ const CustomCursor = () => {
 
   return (
     <>
-      {/* Main cursor dot */}
+      {/* Arrow cursor */}
       <motion.div
-        className="fixed top-0 left-0 w-4 h-4 rounded-full gradient-bg pointer-events-none z-[9999] mix-blend-difference"
+        className="fixed top-0 left-0 pointer-events-none z-[9999]"
         animate={{
-          x: mousePosition.x - 8,
-          y: mousePosition.y - 8,
-          scale: isHovering ? 2.5 : 1,
+          x: mousePosition.x,
+          y: mousePosition.y,
+          scale: isHovering ? 1.2 : 1,
         }}
         transition={{
           type: "spring",
@@ -50,37 +50,38 @@ const CustomCursor = () => {
           damping: 28,
           mass: 0.5,
         }}
-      />
+      >
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="drop-shadow-lg"
+        >
+          <path
+            d="M4 4L12 20L14.5 13L21 10.5L4 4Z"
+            fill={isHovering ? "hsl(var(--primary))" : "white"}
+            stroke="hsl(var(--foreground))"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </motion.div>
       
-      {/* Trailing ring */}
+      {/* Trailing ring - only visible on hover */}
       <motion.div
-        className="fixed top-0 left-0 w-10 h-10 rounded-full border-2 border-primary/50 pointer-events-none z-[9998]"
+        className="fixed top-0 left-0 w-12 h-12 rounded-full border-2 border-primary/40 pointer-events-none z-[9998]"
         animate={{
-          x: mousePosition.x - 20,
-          y: mousePosition.y - 20,
-          scale: isHovering ? 1.5 : 1,
-          opacity: isHovering ? 0.8 : 0.4,
+          x: mousePosition.x - 24,
+          y: mousePosition.y - 24,
+          scale: isHovering ? 1 : 0,
+          opacity: isHovering ? 0.6 : 0,
         }}
         transition={{
           type: "spring",
-          stiffness: 150,
-          damping: 15,
-          mass: 0.1,
-        }}
-      />
-
-      {/* Outer glow ring */}
-      <motion.div
-        className="fixed top-0 left-0 w-16 h-16 rounded-full border border-secondary/30 pointer-events-none z-[9997]"
-        animate={{
-          x: mousePosition.x - 32,
-          y: mousePosition.y - 32,
-          scale: isHovering ? 1.8 : 1,
-          opacity: isHovering ? 0.6 : 0.2,
-        }}
-        transition={{
-          type: "spring",
-          stiffness: 100,
+          stiffness: 200,
           damping: 20,
           mass: 0.2,
         }}
