@@ -6,14 +6,19 @@ import ScrollReveal from "@/components/animations/ScrollReveal";
 import GlowingOrbs from "@/components/animations/GlowingOrbs";
 import FloatingParticles from "@/components/animations/FloatingParticles";
 import TiltCard from "@/components/animations/TiltCard";
+import { getFeaturedEvent, formatDateRange } from "@/data/events";
 
 const UpcomingEvent = () => {
+  const event = getFeaturedEvent();
+
+  if (!event) return null;
+
   const eventDetails = {
-    title: "AI Verse 4.0",
-    tagline: "The Next Frontier of Artificial Intelligence",
-    date: "March 15-16, 2025",
-    venue: "CSE Department Auditorium",
-    time: "9:00 AM - 6:00 PM",
+    title: event.title,
+    tagline: event.tagline || "The Next Frontier of Artificial Intelligence",
+    date: formatDateRange(event.date, event.endDate),
+    venue: event.venue,
+    time: event.time || "9:00 AM - 6:00 PM",
     highlights: [
       { icon: Rocket, title: "AI Innovation Lab", description: "Hands-on experience with latest AI tools" },
       { icon: Zap, title: "Tech Talks", description: "Industry experts sharing insights" },
@@ -69,7 +74,7 @@ const UpcomingEvent = () => {
               <motion.h2
                 className="text-5xl md:text-7xl font-display font-bold text-primary-foreground mb-4"
               >
-                <motion.span 
+                <motion.span
                   className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent bg-[length:200%_auto]"
                   animate={{ backgroundPosition: ["0% center", "200% center"] }}
                   transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
@@ -90,7 +95,7 @@ const UpcomingEvent = () => {
                 <TiltCard tiltAmount={10} className="h-full">
                   <motion.div
                     className="glass-card rounded-2xl p-6 text-center group h-full"
-                    whileHover={{ 
+                    whileHover={{
                       boxShadow: "0 0 30px hsl(221 83% 53% / 0.3)",
                     }}
                   >

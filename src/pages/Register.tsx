@@ -28,6 +28,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Link } from "react-router-dom";
+import { sendRegistrationEmail } from "@/services/emailService";
 
 const registrationSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters").max(100, "Name must be less than 100 characters"),
@@ -72,14 +73,57 @@ const Register = () => {
 
   const onSubmit = async (data: RegistrationFormData) => {
     setIsSubmitting(true);
-    
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
-    sessionStorage.setItem("registrationData", JSON.stringify(data));
-    
-    toast.success("Registration details saved! Proceeding to payment...");
-    navigate("/payment");
-    setIsSubmitting(false);
+
+    try {
+      // Simulate API delay
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      // Save registration data
+      sessionStorage.setItem("registrationData", JSON.stringify(data));
+
+      // Save persistent user profile
+      localStorage.setItem("userProfile", JSON.stringify({
+        name: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        college: data.collegeName,
+        department: data.branchName,
+        year: data.yearOfStudy,
+        location: "India", // Default or derive
+        joinedDate: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+        bio: "Passionate about technology and innovation.",
+        avatar: ""
+      }));
+
+      // Generate unique registration ID
+      const registrationId = `REG-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+
+      // Send automatic registration confirmation email
+      console.log("Sending registration email to:", data.email);
+      const emailResult = await sendRegistrationEmail(
+        data.email,              // User's email
+        data.fullName,           // User's name
+        "AI Verse 4.0",          // Event name
+        "March 15-16, 2025",     // Event date
+        "CSE Department Auditorium", // Event venue
+        registrationId           // Registration ID
+      );
+
+      if (emailResult.success) {
+        toast.success("✅ Registration confirmed! Check your email for details.");
+      } else {
+        console.error("Email error:", emailResult.error);
+        toast.warning("⚠️ Registration saved, but email notification failed. Please check EmailJS configuration.");
+      }
+
+      toast.success("Registration details saved! Proceeding to payment...");
+      navigate("/payment");
+    } catch (error) {
+      console.error("Registration error:", error);
+      toast.error("❌ Registration failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -92,12 +136,12 @@ const Register = () => {
       <PageTransition>
         <div className="min-h-screen bg-background">
           <Navbar />
-          
+
           <main className="pt-24 pb-16">
             <div className="container mx-auto px-4">
               {/* Back Link */}
-              <button 
-                onClick={() => navigate(-1)} 
+              <button
+                onClick={() => navigate(-1)}
                 className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8"
               >
                 <ArrowLeft className="w-4 h-4" />
@@ -106,7 +150,7 @@ const Register = () => {
 
               <div className="max-w-2xl mx-auto">
                 {/* Header */}
-                <motion.div 
+                <motion.div
                   className="text-center mb-10"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -122,10 +166,13 @@ const Register = () => {
                   <p className="text-muted-foreground text-lg">
                     Fill in your details to secure your spot at the biggest AI event of the year.
                   </p>
+                  <p className="text-sm text-primary mt-2">
+                    📧 You'll receive an automatic confirmation email after registration
+                  </p>
                 </motion.div>
 
                 {/* Registration Form */}
-                <motion.div 
+                <motion.div
                   className="bg-card rounded-2xl shadow-elevated p-8 md:p-10"
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -144,10 +191,10 @@ const Register = () => {
                               Full Name
                             </FormLabel>
                             <FormControl>
-                              <Input 
-                                placeholder="Enter your full name" 
+                              <Input
+                                placeholder="Enter your full name"
                                 className="h-12"
-                                {...field} 
+                                {...field}
                               />
                             </FormControl>
                             <FormMessage />
@@ -167,11 +214,11 @@ const Register = () => {
                                 Email Address
                               </FormLabel>
                               <FormControl>
-                                <Input 
+                                <Input
                                   type="email"
-                                  placeholder="your@email.com" 
+                                  placeholder="your@email.com"
                                   className="h-12"
-                                  {...field} 
+                                  {...field}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -189,11 +236,11 @@ const Register = () => {
                                 Phone Number
                               </FormLabel>
                               <FormControl>
-                                <Input 
+                                <Input
                                   type="tel"
-                                  placeholder="10-digit mobile number" 
+                                  placeholder="10-digit mobile number"
                                   className="h-12"
-                                  {...field} 
+                                  {...field}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -213,10 +260,10 @@ const Register = () => {
                               College / University Name
                             </FormLabel>
                             <FormControl>
-                              <Input 
-                                placeholder="Enter your college name" 
+                              <Input
+                                placeholder="Enter your college name"
                                 className="h-12"
-                                {...field} 
+                                {...field}
                               />
                             </FormControl>
                             <FormMessage />
@@ -291,17 +338,17 @@ const Register = () => {
                             <p className="text-sm text-muted-foreground">March 15-16, 2025</p>
                           </div>
                           <div className="text-right">
-                            <p className="text-2xl font-display font-bold gradient-text">₹499</p>
+                            <p className="text-2xl font-display font-bold gradient-text">₹459</p>
                             <p className="text-xs text-muted-foreground">Registration Fee</p>
                           </div>
                         </div>
                       </div>
 
                       {/* Submit Button */}
-                      <Button 
-                        type="submit" 
-                        variant="gradient" 
-                        size="xl" 
+                      <Button
+                        type="submit"
+                        variant="gradient"
+                        size="xl"
                         className="w-full group"
                         disabled={isSubmitting}
                       >

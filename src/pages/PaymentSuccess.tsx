@@ -18,12 +18,12 @@ const PaymentSuccess = () => {
   useEffect(() => {
     const payment = sessionStorage.getItem("paymentSuccess");
     const registration = sessionStorage.getItem("registrationData");
-    
+
     if (!payment || !registration) {
       navigate("/");
       return;
     }
-    
+
     setPaymentData(JSON.parse(payment));
     setRegistrationData(JSON.parse(registration));
   }, [navigate]);
@@ -49,18 +49,18 @@ const PaymentSuccess = () => {
       <PageTransition>
         <div className="min-h-screen bg-background">
           <Navbar />
-          
+
           <main className="pt-24 pb-16">
             <div className="container mx-auto px-4">
               <div className="max-w-2xl mx-auto text-center">
                 {/* Success Animation */}
-                <motion.div 
+                <motion.div
                   className="mb-8"
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", stiffness: 200, damping: 15 }}
                 >
-                  <motion.div 
+                  <motion.div
                     className="w-24 h-24 rounded-full gradient-bg mx-auto flex items-center justify-center shadow-glow"
                     animate={{
                       boxShadow: [
@@ -76,7 +76,7 @@ const PaymentSuccess = () => {
                 </motion.div>
 
                 {/* Success Message */}
-                <motion.h1 
+                <motion.h1
                   className="text-4xl md:text-5xl font-display font-bold mb-4"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -84,7 +84,7 @@ const PaymentSuccess = () => {
                 >
                   <span className="gradient-text">Registration Successful!</span>
                 </motion.h1>
-                <motion.p 
+                <motion.p
                   className="text-lg text-muted-foreground mb-8"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -94,15 +94,16 @@ const PaymentSuccess = () => {
                 </motion.p>
 
                 {/* Registration Card */}
-                <motion.div 
-                  className="bg-card rounded-2xl shadow-elevated p-8 mb-8"
+                <motion.div
+                  id="ticket-card"
+                  className="bg-card rounded-2xl shadow-elevated p-8 mb-8 bg-white text-black text-left"
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
                 >
                   {/* Registration ID */}
                   <div className="bg-muted/50 rounded-xl p-6 mb-6">
-                    <p className="text-sm text-muted-foreground mb-2">Your Registration ID</p>
+                    <p className="text-sm text-muted-foreground mb-2 text-center">Your Registration ID</p>
                     <div className="flex items-center justify-center gap-3">
                       <span className="text-2xl md:text-3xl font-display font-bold gradient-text tracking-wider">
                         {paymentData.registrationId}
@@ -144,8 +145,8 @@ const PaymentSuccess = () => {
 
                   {/* Event Details */}
                   <div className="border-t border-border pt-6">
-                    <h3 className="font-display font-bold text-lg mb-4 gradient-text">Event Details</h3>
-                    <div className="flex flex-col md:flex-row justify-center gap-6">
+                    <h3 className="font-display font-bold text-lg mb-4 gradient-text text-center md:text-left">Event Details</h3>
+                    <div className="flex flex-col md:flex-row justify-center md:justify-start gap-6">
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <Calendar className="w-5 h-5 text-primary" />
                         <span>March 15-16, 2025</span>
@@ -159,7 +160,7 @@ const PaymentSuccess = () => {
                 </motion.div>
 
                 {/* Info Note */}
-                <motion.div 
+                <motion.div
                   className="flex items-start gap-3 p-4 rounded-xl bg-secondary/10 border border-secondary/20 mb-8 text-left"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -172,13 +173,24 @@ const PaymentSuccess = () => {
                 </motion.div>
 
                 {/* Action Buttons */}
-                <motion.div 
+                <motion.div
                   className="flex flex-col sm:flex-row gap-4 justify-center"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6 }}
                 >
-                  <Button variant="gradient" size="lg" className="gap-2">
+                  <Button
+                    variant="gradient"
+                    size="lg"
+                    className="gap-2"
+                    onClick={() => {
+                      toast.info("Generating Ticket...");
+                      import("@/utils/pdfGenerator").then(({ downloadPDF }) => {
+                        downloadPDF("ticket-card", `AI-Verse-Ticket-${paymentData.registrationId}`);
+                        toast.success("Ticket Downloaded!");
+                      });
+                    }}
+                  >
                     <Download className="w-5 h-5" />
                     Download Ticket
                   </Button>

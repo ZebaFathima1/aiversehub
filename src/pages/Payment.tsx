@@ -1,24 +1,31 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Helmet } from "react-helmet-async";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { ArrowLeft, CreditCard, Smartphone, Building2, Shield, Lock, CheckCircle } from "lucide-react";
+import { ArrowLeft, Upload, Loader2, Check, Shield, Lock, CheckCircle, Copy, AlertCircle } from "lucide-react";
+import { sendPaymentConfirmationEmail } from "@/services/emailService";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/animations/PageTransition";
 import TiltCard from "@/components/animations/TiltCard";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
-
-type PaymentMethod = "upi" | "card" | "netbanking";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const Payment = () => {
   const navigate = useNavigate();
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>("upi");
   const [isProcessing, setIsProcessing] = useState(false);
   const [registrationData, setRegistrationData] = useState<any>(null);
+  const [paymentScreenshot, setPaymentScreenshot] = useState<File | null>(null);
+  const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [enteredAmount, setEnteredAmount] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const UPI_ID = "7993759775@axl";
+  const QR_CODE_IMAGE = "/payment-qr.jpg";
 
   useEffect(() => {
     const data = sessionStorage.getItem("registrationData");
@@ -30,27 +37,88 @@ const Payment = () => {
     setRegistrationData(JSON.parse(data));
   }, [navigate]);
 
-  const paymentMethods = [
-    { id: "upi" as PaymentMethod, name: "UPI", icon: Smartphone, description: "Pay using any UPI app" },
-    { id: "card" as PaymentMethod, name: "Card", icon: CreditCard, description: "Credit or Debit card" },
-    { id: "netbanking" as PaymentMethod, name: "Net Banking", icon: Building2, description: "All major banks" },
-  ];
+  const handleCopyUpi = () => {
+    navigator.clipboard.writeText(UPI_ID);
+    setCopied(true);
+    toast.success("UPI ID copied to clipboard!");
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setPaymentScreenshot(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setScreenshotPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handlePayment = async () => {
+    if (!enteredAmount) {
+      toast.error("Please enter the amount you paid");
+      return;
+    }
+
+    if (!paymentScreenshot) {
+      toast.error("Please upload the payment screenshot to verify your transaction");
+      return;
+    }
+
     setIsProcessing(true);
-    
+
+    // Simulate verification delay
     await new Promise((resolve) => setTimeout(resolve, 2000));
-    
+
     const registrationId = `AIVERSE4-${Date.now().toString(36).toUpperCase()}`;
-    
+
+    // Create new payment record
+    const newPayment = {
+      id: Date.now().toString(),
+      transactionId: `TXN${Date.now()}`,
+      user: registrationData.fullName,
+      email: registrationData.email,
+      event: "AI-Verse 4.0",
+      amount: `₹${enteredAmount}`,
+      method: "UPI",
+      status: "pending", // Needs admin verification
+      date: new Date().toISOString(),
+      screenshot: screenshotPreview, // Save the data URL
+      registrationId: registrationId
+    };
+
+    // Save to localStorage for Admin Dashboard
+    const existingPayments = JSON.parse(localStorage.getItem("allPayments") || "[]");
+    localStorage.setItem("allPayments", JSON.stringify([newPayment, ...existingPayments]));
+
     sessionStorage.setItem("paymentSuccess", JSON.stringify({
       registrationId,
-      amount: 499,
-      method: selectedMethod,
+      amount: enteredAmount,
+      method: "upi",
       timestamp: new Date().toISOString(),
+      screenshot: screenshotPreview
     }));
-    
-    toast.success("Payment successful!");
+
+    // Send Payment Confirmation Email
+    toast.info("Sending payment confirmation...");
+    const emailResult = await sendPaymentConfirmationEmail(
+      registrationData.email,
+      registrationData.fullName,
+      "AI Verse 4.0",
+      `₹${enteredAmount}`,
+      registrationId
+    );
+
+    if (emailResult.success) {
+      toast.success("Payment confirmation email sent!");
+    } else {
+      console.error("Payment email failed:", emailResult.error);
+      toast.warning("Payment saved, but email failed. Check EmailJS config.");
+    }
+
+    toast.success("Payment proof uploaded successfully!");
     navigate("/payment-success");
     setIsProcessing(false);
   };
@@ -67,12 +135,12 @@ const Payment = () => {
       <PageTransition>
         <div className="min-h-screen bg-background">
           <Navbar />
-          
+
           <main className="pt-24 pb-16">
             <div className="container mx-auto px-4">
               {/* Back Link */}
-              <button 
-                onClick={() => navigate(-1)} 
+              <button
+                onClick={() => navigate(-1)}
                 className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8"
               >
                 <ArrowLeft className="w-4 h-4" />
@@ -81,8 +149,8 @@ const Payment = () => {
 
               <div className="max-w-4xl mx-auto">
                 <div className="grid lg:grid-cols-5 gap-8">
-                  {/* Payment Options */}
-                  <motion.div 
+                  {/* Payment Section */}
+                  <motion.div
                     className="lg:col-span-3"
                     initial={{ opacity: 0, x: -30 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -90,78 +158,121 @@ const Payment = () => {
                   >
                     <div className="bg-card rounded-2xl shadow-elevated p-8">
                       <h1 className="text-2xl font-display font-bold mb-6">
-                        <span className="gradient-text">Select Payment Method</span>
+                        <span className="gradient-text">Complete Payment</span>
                       </h1>
 
-                      {/* Payment Methods */}
-                      <div className="space-y-4 mb-8">
-                        {paymentMethods.map((method, index) => (
-                          <motion.button
-                            key={method.id}
-                            onClick={() => setSelectedMethod(method.id)}
-                            className={cn(
-                              "w-full flex items-center gap-4 p-4 rounded-xl border-2 transition-all duration-300",
-                              selectedMethod === method.id
-                                ? "border-primary bg-primary/5"
-                                : "border-border hover:border-primary/50"
-                            )}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.3 + index * 0.1 }}
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
+                      {/* QR Code Section */}
+                      <div className="flex flex-col items-center justify-center p-6 bg-white rounded-xl mb-6 border-2 border-dashed border-border">
+                        <p className="text-black font-semibold mb-4 text-center">Scan QR Code to Pay</p>
+                        <div className="relative w-64 h-64 mb-4">
+                          <img
+                            src={QR_CODE_IMAGE}
+                            alt="Payment QR Code"
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                        <div className="flex items-center gap-2 p-2 bg-gray-100 rounded-lg w-full max-w-sm justify-between">
+                          <code className="text-black font-mono px-2 text-sm md:text-base">{UPI_ID}</code>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-gray-600 hover:text-black hover:bg-gray-200"
+                            onClick={handleCopyUpi}
                           >
-                            <div className={cn(
-                              "w-12 h-12 rounded-xl flex items-center justify-center transition-colors",
-                              selectedMethod === method.id
-                                ? "gradient-bg text-primary-foreground"
-                                : "bg-muted text-muted-foreground"
-                            )}>
-                              <method.icon className="w-6 h-6" />
-                            </div>
-                            <div className="text-left flex-1">
-                              <h3 className="font-semibold text-foreground">{method.name}</h3>
-                              <p className="text-sm text-muted-foreground">{method.description}</p>
-                            </div>
-                            <div className={cn(
-                              "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
-                              selectedMethod === method.id
-                                ? "border-primary bg-primary"
-                                : "border-border"
-                            )}>
-                              {selectedMethod === method.id && (
-                                <div className="w-2 h-2 rounded-full bg-primary-foreground" />
-                              )}
-                            </div>
-                          </motion.button>
-                        ))}
-                      </div>
-
-                      {/* Security Notice */}
-                      <div className="flex items-center gap-3 p-4 rounded-xl bg-secondary/10 border border-secondary/20">
-                        <Shield className="w-5 h-5 text-secondary" />
-                        <p className="text-sm text-muted-foreground">
-                          Your payment is secured with 256-bit SSL encryption
+                            {copied ? <CheckCircle className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
+                          </Button>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2 text-center">
+                          Pay using PhonePe, Google Pay, Paytm or any UPI app
                         </p>
                       </div>
 
-                      {/* Pay Button */}
+                      {/* Manual Amount Entry */}
+                      <div className="space-y-4 mb-6">
+                        <div className="flex items-center gap-2 text-foreground font-semibold">
+                          <span className="text-primary">₹</span>
+                          Enter Amount Paid
+                        </div>
+                        <Input
+                          type="number"
+                          placeholder="e.g. 459"
+                          value={enteredAmount}
+                          onChange={(e) => setEnteredAmount(e.target.value)}
+                          className="text-lg"
+                        />
+                      </div>
+
+                      {/* Upload Screenshot Section */}
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2 text-foreground font-semibold">
+                          <Upload className="w-5 h-5 text-primary" />
+                          Upload Payment Screenshot
+                        </div>
+
+                        <div
+                          className={cn(
+                            "border-2 border-dashed rounded-xl p-6 text-center transition-colors cursor-pointer relative overflow-hidden",
+                            paymentScreenshot ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                          )}
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          <Input
+                            type="file"
+                            ref={fileInputRef}
+                            className="hidden"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                          />
+
+                          {screenshotPreview ? (
+                            <div className="flex flex-col items-center">
+                              <img
+                                src={screenshotPreview}
+                                alt="Screenshot Preview"
+                                className="h-48 object-contain rounded-lg mb-2 shadow-sm"
+                              />
+                              <p className="text-sm text-green-600 font-medium flex items-center gap-1">
+                                <CheckCircle className="w-4 h-4" /> Screenshot selected
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-1">Click to change</p>
+                            </div>
+                          ) : (
+                            <div className="flex flex-col items-center py-4">
+                              <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3 text-muted-foreground">
+                                <Upload className="w-6 h-6" />
+                              </div>
+                              <p className="text-sm font-medium mb-1">Click to upload screenshot</p>
+                              <p className="text-xs text-muted-foreground">JPG, PNG or PDF confirmed payment receipt</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Security Notice */}
+                      <div className="flex items-center gap-3 p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20 mt-6">
+                        <AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0" />
+                        <p className="text-sm text-muted-foreground">
+                          Please ensure the <strong>Transaction ID</strong> is visible in the uploaded screenshot for verification.
+                        </p>
+                      </div>
+
+                      {/* Submit Button */}
                       <Button
                         variant="gradient"
                         size="xl"
-                        className="w-full mt-8 group"
+                        className="w-full mt-6 group"
                         onClick={handlePayment}
                         disabled={isProcessing}
                       >
                         {isProcessing ? (
                           <>
                             <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                            Processing Payment...
+                            Verifying...
                           </>
                         ) : (
                           <>
-                            <Lock className="w-5 h-5" />
-                            Pay ₹499 Securely
+                            <CheckCircle className="w-5 h-5" />
+                            Submit Payment Proof
                           </>
                         )}
                       </Button>
@@ -169,7 +280,7 @@ const Payment = () => {
                   </motion.div>
 
                   {/* Order Summary */}
-                  <motion.div 
+                  <motion.div
                     className="lg:col-span-2"
                     initial={{ opacity: 0, x: 30 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -178,7 +289,7 @@ const Payment = () => {
                     <TiltCard tiltAmount={8}>
                       <div className="bg-card rounded-2xl shadow-elevated p-6 sticky top-24">
                         <h2 className="font-display font-bold text-lg mb-4">Order Summary</h2>
-                        
+
                         {/* Event Details */}
                         <div className="pb-4 border-b border-border">
                           <h3 className="font-semibold gradient-text">AI Verse 4.0</h3>
@@ -205,7 +316,7 @@ const Payment = () => {
                         <div className="py-4 border-b border-border space-y-2">
                           <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">Registration Fee</span>
-                            <span>₹499</span>
+                            <span>₹459</span>
                           </div>
                           <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">Processing Fee</span>
@@ -216,7 +327,7 @@ const Payment = () => {
                         {/* Total */}
                         <div className="pt-4 flex justify-between items-center">
                           <span className="font-semibold">Total Amount</span>
-                          <span className="text-2xl font-display font-bold gradient-text">₹499</span>
+                          <span className="text-2xl font-display font-bold gradient-text">₹459</span>
                         </div>
 
                         {/* Features */}

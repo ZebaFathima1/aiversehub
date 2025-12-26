@@ -33,8 +33,15 @@ const Navbar = () => {
   // Check if user is logged in
   useEffect(() => {
     const checkAuth = () => {
+      // Check persistent profile first
+      const userProfile = localStorage.getItem("userProfile");
       const userData = sessionStorage.getItem("userData");
-      if (userData) {
+
+      if (userProfile) {
+        const parsed = JSON.parse(userProfile);
+        setIsLoggedIn(true);
+        setUserName(parsed.name || parsed.email || "User");
+      } else if (userData) {
         const parsed = JSON.parse(userData);
         setIsLoggedIn(true);
         setUserName(parsed.name || parsed.email || "User");
@@ -43,13 +50,13 @@ const Navbar = () => {
         setUserName("");
       }
     };
-    
+
     checkAuth();
     // Listen for storage changes
     window.addEventListener("storage", checkAuth);
     // Custom event for same-tab updates
     window.addEventListener("authChange", checkAuth);
-    
+
     return () => {
       window.removeEventListener("storage", checkAuth);
       window.removeEventListener("authChange", checkAuth);
@@ -57,6 +64,7 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = () => {
+    localStorage.removeItem("userProfile");
     sessionStorage.removeItem("userData");
     setIsLoggedIn(false);
     setUserName("");
@@ -166,7 +174,7 @@ const Navbar = () => {
                   </motion.button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     className="flex items-center gap-2"
                     onClick={() => navigate("/profile")}
                   >
@@ -174,7 +182,7 @@ const Navbar = () => {
                     <span>Profile</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     className="flex items-center gap-2 text-destructive focus:text-destructive"
                     onClick={handleLogout}
                   >
@@ -267,8 +275,8 @@ const Navbar = () => {
                 ))}
                 {isLoggedIn ? (
                   <>
-                    <Link 
-                      to="/profile" 
+                    <Link
+                      to="/profile"
                       onClick={() => setIsMobileMenuOpen(false)}
                       className="flex items-center gap-3 p-3 rounded-xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors"
                     >
@@ -280,8 +288,8 @@ const Navbar = () => {
                         <p className="text-xs text-muted-foreground">View Profile</p>
                       </div>
                     </Link>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       className="w-full text-destructive border-destructive/30 hover:bg-destructive/10"
                       onClick={() => {
                         handleLogout();

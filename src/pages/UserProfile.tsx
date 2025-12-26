@@ -12,27 +12,34 @@ import EditProfileDialog from "@/components/EditProfileDialog";
 
 const UserProfile = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  
-  // Demo user data
-  const [user, setUser] = useState({
-    name: sessionStorage.getItem("userName") || "John Doe",
-    email: sessionStorage.getItem("userEmail") || "john.doe@example.com",
-    phone: "+91 98765 43210",
-    college: "Vaagdevi College of Engineering and Technology",
-    department: "CSE (AI & ML)",
-    year: "3rd Year",
-    location: "Mumbai, India",
-    joinedDate: "December 2024",
-    bio: "Passionate about technology and innovation. Love participating in hackathons and tech events.",
-    avatar: sessionStorage.getItem("userAvatar") || "",
-  });
+
+  // Initialize user data from localStorage (persistent)
+  const getInitialUser = () => {
+    const savedProfile = localStorage.getItem("userProfile");
+    if (savedProfile) {
+      return JSON.parse(savedProfile);
+    }
+    // Fallback/Default
+    return {
+      name: "John Doe",
+      email: "john.doe@example.com",
+      phone: "+91 98765 43210",
+      college: "Vaagdevi College of Engineering and Technology",
+      department: "CSE (AI & ML)",
+      year: "3rd Year",
+      location: "Mumbai, India",
+      joinedDate: "December 2024",
+      bio: "Passionate about technology and innovation. Love participating in hackathons and tech events.",
+      avatar: "",
+    };
+  };
+
+  const [user, setUser] = useState(getInitialUser());
 
   const handleProfileUpdate = (updatedUser: typeof user) => {
     setUser(updatedUser);
-    // Persist to sessionStorage
-    sessionStorage.setItem("userName", updatedUser.name);
-    sessionStorage.setItem("userEmail", updatedUser.email);
-    sessionStorage.setItem("userAvatar", updatedUser.avatar);
+    // Persist to localStorage
+    localStorage.setItem("userProfile", JSON.stringify(updatedUser));
     // Trigger auth change for navbar update
     window.dispatchEvent(new Event("authChange"));
   };
@@ -70,7 +77,7 @@ const UserProfile = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
+
       <main className="pt-24 pb-16">
         <div className="container mx-auto px-4 max-w-6xl">
           {/* Profile Header */}
@@ -84,7 +91,7 @@ const UserProfile = () => {
             <div className="h-48 md:h-64 rounded-2xl bg-gradient-to-r from-primary/40 via-accent/30 to-primary/40 relative overflow-hidden">
               <div className="absolute inset-0 bg-[url('/placeholder.svg')] opacity-10 bg-cover bg-center" />
               <div className="absolute inset-0 backdrop-blur-sm" />
-              
+
               {/* College Branding Overlay */}
               <div className="absolute top-4 left-4 md:top-6 md:left-6 flex items-center gap-3">
                 <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-primary/90 backdrop-blur-sm flex items-center justify-center shadow-lg border border-primary-foreground/20">
@@ -134,8 +141,8 @@ const UserProfile = () => {
                 </div>
               </div>
 
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="gap-2"
                 onClick={() => setIsEditDialogOpen(true)}
               >
@@ -301,7 +308,7 @@ const UserProfile = () => {
       </main>
 
       <Footer />
-      
+
       <EditProfileDialog
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}

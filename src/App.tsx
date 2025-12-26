@@ -14,6 +14,12 @@ import Payment from "./pages/Payment";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import UserProfile from "./pages/UserProfile";
 import NotFound from "./pages/NotFound";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminUsers from "./pages/AdminUsers";
+import AdminEvents from "./pages/AdminEvents";
+import AdminPayments from "./pages/AdminPayments";
+import AdminSettings from "./pages/AdminSettings";
+import EmailTest from "./pages/EmailTest";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +40,13 @@ const App = () => (
             <Route path="/payment" element={<Payment />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/profile" element={<UserProfile />} />
+            {/* Admin Routes */}
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/events" element={<AdminEvents />} />
+            <Route path="/admin/payments" element={<AdminPayments />} />
+            <Route path="/admin/settings" element={<AdminSettings />} />
+            <Route path="/email-test" element={<EmailTest />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
