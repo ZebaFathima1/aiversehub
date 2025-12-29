@@ -8,6 +8,7 @@ import {
     Eye,
     Edit,
     Trash2,
+    RefreshCw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,16 +30,23 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import UserDetailsDialog from "./UserDetailsDialog";
+import { userApi } from "@/lib/api";
+import { toast } from "sonner";
 
 interface User {
-    id: string;
-    name: string;
+    id: number;
+    username: string;
     email: string;
+    first_name: string;
+    last_name: string;
+    profile?: {
+        role: string;
+        department: string;
+        year: string;
+    };
     avatar?: string;
-    role: "admin" | "user";
-    status: "active" | "inactive";
-    registrations: number;
-    joinedDate: string;
+    registrations?: number;
+    joinedDate?: string;
 }
 
 export default function UsersTable() {
@@ -46,48 +54,47 @@ export default function UsersTable() {
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [users, setUsers] = useState<User[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchUsers = async () => {
+        setLoading(true);
+        try {
+            const response = await userApi.getAll();
+            setUsers(response.data);
+        } catch (error) {
+            console.error("Failed to fetch users:", error);
+            toast.error("Failed to load users from server");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const storedPayments = localStorage.getItem("allPayments");
-        if (storedPayments) {
-            try {
-                const payments = JSON.parse(storedPayments);
-                // Extract unique users from payments
-                const uniqueUsersMap = new Map();
-
-                payments.forEach((p: any) => {
-                    if (!uniqueUsersMap.has(p.email)) {
-                        uniqueUsersMap.set(p.email, {
-                            id: p.id, // Use payment ID as simplified User ID
-                            name: p.user,
-                            email: p.email,
-                            role: "user", // Default role
-                            status: "active",
-                            registrations: 1,
-                            joinedDate: p.date
-                        });
-                    } else {
-                        const existing = uniqueUsersMap.get(p.email);
-                        existing.registrations += 1;
-                    }
-                });
-
-                setUsers(Array.from(uniqueUsersMap.values()));
-            } catch (e) {
-                console.error("Failed to parse payments for users", e);
-            }
-        }
+        fetchUsers();
     }, []);
 
     const filteredUsers = users.filter(
         (user) =>
-            user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            user.email.toLowerCase().includes(searchQuery.toLowerCase())
+            (user.username || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (user.email || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (`${user.first_name} ${user.last_name}`).toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     const handleViewUser = (user: User) => {
         setSelectedUser(user);
         setDialogOpen(true);
+    };
+
+    const handleDeleteUser = async (id: number) => {
+        if (!window.confirm("Are you sure you want to delete this user? This action cannot be undone.")) return;
+        try {
+            await userApi.delete(id);
+            toast.success("User deleted successfully");
+            fetchUsers();
+        } catch (error) {
+            console.error("Failed to delete user:", error);
+            toast.error("Failed to delete user");
+        }
     };
 
     return (
@@ -110,6 +117,9 @@ export default function UsersTable() {
                                         className="pl-9 w-[200px] sm:w-[300px]"
                                     />
                                 </div>
+                                <Button variant="outline" size="icon" onClick={fetchUsers} disabled={loading}>
+                                    <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                                </Button>
                                 <Button className="gap-2">
                                     <UserPlus className="h-4 w-4" />
                                     Add User
@@ -129,92 +139,89 @@ export default function UsersTable() {
                                         <TableHead>User</TableHead>
                                         <TableHead>Email</TableHead>
                                         <TableHead>Role</TableHead>
-                                        <TableHead>Status</TableHead>
+                                        <TableHead>Department</TableHead>
                                         <TableHead>Registrations</TableHead>
-                                        <TableHead>Joined</TableHead>
                                         <TableHead className="text-right">Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {filteredUsers.map((user) => (
-                                        <TableRow key={user.id} className="group">
-                                            <TableCell>
-                                                <div className="flex items-center gap-3">
-                                                    <Avatar className="h-10 w-10">
-                                                        <AvatarImage src={user.avatar} />
-                                                        <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white">
-                                                            {user.name
-                                                                .split(" ")
-                                                                .map((n) => n[0])
-                                                                .join("")}
-                                                        </AvatarFallback>
-                                                    </Avatar>
-                                                    <span className="font-medium">{user.name}</span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="text-muted-foreground">
-                                                {user.email}
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge
-                                                    variant={user.role === "admin" ? "default" : "secondary"}
-                                                >
-                                                    {user.role}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge
-                                                    variant={
-                                                        user.status === "active" ? "default" : "outline"
-                                                    }
-                                                    className={
-                                                        user.status === "active"
-                                                            ? "bg-green-500/10 text-green-500 border-green-500/20"
-                                                            : ""
-                                                    }
-                                                >
-                                                    {user.status}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell>{user.registrations}</TableCell>
-                                            <TableCell className="text-muted-foreground">
-                                                {new Date(user.joinedDate).toLocaleDateString()}
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="opacity-0 group-hover:opacity-100 transition-opacity"
-                                                        >
-                                                            <MoreHorizontal className="h-4 w-4" />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end">
-                                                        <DropdownMenuItem onClick={() => handleViewUser(user)}>
-                                                            <Eye className="h-4 w-4 mr-2" />
-                                                            View Details
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem>
-                                                            <Edit className="h-4 w-4 mr-2" />
-                                                            Edit User
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem className="text-destructive">
-                                                            <Trash2 className="h-4 w-4 mr-2" />
-                                                            Delete User
-                                                        </DropdownMenuItem>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
+                                    {loading ? (
+                                        <TableRow>
+                                            <TableCell colSpan={6} className="h-24 text-center">
+                                                <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2" />
+                                                Loading users...
                                             </TableCell>
                                         </TableRow>
-                                    ))}
-                                    {filteredUsers.length === 0 && (
+                                    ) : filteredUsers.length === 0 ? (
                                         <TableRow>
-                                            <TableCell colSpan={7} className="h-24 text-center">
+                                            <TableCell colSpan={6} className="h-24 text-center">
                                                 No users found.
                                             </TableCell>
                                         </TableRow>
+                                    ) : (
+                                        filteredUsers.map((user) => (
+                                            <TableRow key={user.id} className="group">
+                                                <TableCell>
+                                                    <div className="flex items-center gap-3">
+                                                        <Avatar className="h-10 w-10">
+                                                            <AvatarImage src={user.avatar} />
+                                                            <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white">
+                                                                {user.first_name ? user.first_name[0] : user.username[0]}
+                                                                {user.last_name ? user.last_name[0] : ""}
+                                                            </AvatarFallback>
+                                                        </Avatar>
+                                                        <div className="flex flex-col">
+                                                            <span className="font-medium">{user.first_name} {user.last_name}</span>
+                                                            <span className="text-xs text-muted-foreground">@{user.username}</span>
+                                                        </div>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="text-muted-foreground">
+                                                    {user.email}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge
+                                                        variant={user.profile?.role === "admin" ? "default" : "secondary"}
+                                                    >
+                                                        {user.profile?.role || "user"}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="text-muted-foreground">
+                                                    {user.profile?.department || "N/A"}
+                                                </TableCell>
+                                                <TableCell>{user.registrations || 0}</TableCell>
+                                                <TableCell className="text-right">
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger asChild>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="opacity-0 group-hover:opacity-100 transition-opacity"
+                                                            >
+                                                                <MoreHorizontal className="h-4 w-4" />
+                                                            </Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent align="end">
+                                                            <DropdownMenuItem onClick={() => handleViewUser(user)}>
+                                                                <Eye className="h-4 w-4 mr-2" />
+                                                                View Details
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem>
+                                                                <Edit className="h-4 w-4 mr-2" />
+                                                                Edit User
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem
+                                                                className="text-destructive"
+                                                                onClick={() => handleDeleteUser(user.id)}
+                                                            >
+                                                                <Trash2 className="h-4 w-4 mr-2" />
+                                                                Delete User
+                                                            </DropdownMenuItem>
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
                                     )}
                                 </TableBody>
                             </Table>
@@ -225,7 +232,7 @@ export default function UsersTable() {
 
             {selectedUser && (
                 <UserDetailsDialog
-                    user={selectedUser}
+                    user={selectedUser as any}
                     open={dialogOpen}
                     onOpenChange={setDialogOpen}
                 />

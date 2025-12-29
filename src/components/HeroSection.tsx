@@ -51,7 +51,7 @@ const HeroSection = () => {
       {/* Animated Background */}
       <GlowingOrbs />
       <FloatingParticles count={30} />
-      
+
       {/* Grid Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:80px_80px]" />
 
@@ -62,8 +62,8 @@ const HeroSection = () => {
           className="absolute hidden md:block"
           style={{ left: x, top: y }}
           initial={{ opacity: 0, scale: 0 }}
-          animate={{ 
-            opacity: 0.15, 
+          animate={{
+            opacity: 0.15,
             scale: 1,
             y: [0, -20, 0],
           }}
@@ -89,7 +89,7 @@ const HeroSection = () => {
           <motion.div variants={itemVariants}>
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-display font-bold mb-6 text-primary-foreground">
               <TextReveal delay={0.5}>Welcome to</TextReveal>
-              <motion.span 
+              <motion.span
                 className="block bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent bg-[length:200%_auto]"
                 animate={{ backgroundPosition: ["0% center", "200% center"] }}
                 transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
@@ -105,7 +105,7 @@ const HeroSection = () => {
             className="text-xl md:text-2xl text-primary-foreground/70 mb-12 max-w-2xl mx-auto leading-relaxed"
           >
             Innovating the Future with{" "}
-            <motion.span 
+            <motion.span
               className="text-secondary font-semibold inline-block"
               animate={{ scale: [1, 1.05, 1] }}
               transition={{ duration: 2, repeat: Infinity }}
@@ -141,7 +141,10 @@ const HeroSection = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <Button variant="glass" size="lg" className="text-primary-foreground/90 border-primary-foreground/20">
+                <Button
+                  size="lg"
+                  className="bg-[#1a3a3a] text-primary-foreground border border-emerald-900/50 hover:bg-[#1e4040] hover:border-emerald-500/50 backdrop-blur-md shadow-xl transition-all duration-300"
+                >
                   Explore Past Events
                 </Button>
               </motion.div>
@@ -158,14 +161,14 @@ const HeroSection = () => {
                 transition={{ delay: 1 + index * 0.15, type: "spring" }}
               >
                 <TiltCard tiltAmount={12} className="h-full">
-                  <div className="glass-card rounded-2xl p-4 md:p-6 text-center h-full">
+                  <div className="bg-gradient-to-br from-[#1a3a3a] via-[#1e4040] to-[#1a3535] border border-emerald-900/30 rounded-2xl p-4 md:p-6 text-center h-full shadow-xl">
                     <motion.div
                       className="text-2xl md:text-4xl font-display font-bold text-primary-foreground mb-1"
-                      animate={{ 
+                      animate={{
                         textShadow: [
-                          "0 0 10px hsl(221 83% 53% / 0.3)",
-                          "0 0 20px hsl(221 83% 53% / 0.5)",
-                          "0 0 10px hsl(221 83% 53% / 0.3)",
+                          "0 0 10px rgba(16, 185, 129, 0.3)",
+                          "0 0 20px rgba(16, 185, 129, 0.5)",
+                          "0 0 10px rgba(16, 185, 129, 0.3)",
                         ]
                       }}
                       transition={{ duration: 2, repeat: Infinity, delay: index * 0.3 }}

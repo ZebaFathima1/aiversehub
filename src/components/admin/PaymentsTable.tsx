@@ -9,8 +9,10 @@ import {
     Clock,
     XCircle,
     Eye,
-    Image as ImageIcon
+    Image as ImageIcon,
+    RefreshCw
 } from "lucide-react";
+import { sendPaymentConfirmationEmail } from "@/services/emailService";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -36,45 +38,63 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
+import { paymentApi } from "@/lib/api";
+import { toast } from "sonner";
 
 interface Payment {
     id: string;
-    transactionId: string;
-    user: string;
-    event: string;
+    transaction_id: string;
+    user: number;
+    user_details?: {
+        username: string;
+        email: string;
+        first_name: string;
+        last_name: string;
+    };
+    user_name?: string;
+    event: number;
+    event_name?: string;
     amount: string;
     method: "UPI" | "Card" | "Net Banking";
     status: "completed" | "pending" | "failed";
     date: string;
-    screenshot?: string; // Data URL for screenshot
+    screenshot?: string;
+    email?: string;
 }
-
-const mockPayments: Payment[] = [];
 
 export default function PaymentsTable() {
     const [searchQuery, setSearchQuery] = useState("");
     const [activeTab, setActiveTab] = useState("all");
-    const [payments, setPayments] = useState<Payment[]>(mockPayments);
+    const [payments, setPayments] = useState<Payment[]>([]);
+    const [loading, setLoading] = useState(true);
     const [selectedScreenshot, setSelectedScreenshot] = useState<string | null>(null);
 
-    useEffect(() => {
-        // Load payments from localStorage
-        const storedPayments = localStorage.getItem("allPayments");
-        if (storedPayments) {
-            try {
-                const parsedPayments = JSON.parse(storedPayments);
-                // Merge with mock payments (newest first)
-                setPayments([...parsedPayments, ...mockPayments]);
-            } catch (error) {
-                console.error("Failed to parse payments from localStorage", error);
-            }
+    const fetchPayments = async () => {
+        setLoading(true);
+        try {
+            const response = await paymentApi.getAll();
+            const mappedPayments = response.data.map((p: any) => ({
+                ...p,
+                user_name: p.user_details ? `${p.user_details.first_name} ${p.user_details.last_name}`.trim() : (p.user_name || `User ${p.user}`),
+                email: p.user_details?.email || p.email || "",
+            }));
+            setPayments(mappedPayments);
+        } catch (error) {
+            console.error("Failed to fetch payments:", error);
+            toast.error("Failed to load payments from server");
+        } finally {
+            setLoading(false);
         }
+    };
+
+    useEffect(() => {
+        fetchPayments();
     }, []);
 
     const filteredPayments = payments.filter((payment) => {
         const matchesSearch =
-            payment.transactionId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            payment.user.toLowerCase().includes(searchQuery.toLowerCase());
+            (payment.transaction_id || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (payment.user_name || "").toLowerCase().includes(searchQuery.toLowerCase());
         const matchesTab = activeTab === "all" || payment.status === activeTab;
         return matchesSearch && matchesTab;
     });
@@ -101,25 +121,14 @@ export default function PaymentsTable() {
         }
     };
 
-    const getMethodColor = (method: Payment["method"]) => {
-        switch (method) {
-            case "UPI":
-                return "bg-purple-500/10 text-purple-500 border-purple-500/20";
-            case "Card":
-                return "bg-blue-500/10 text-blue-500 border-blue-500/20";
-            case "Net Banking":
-                return "bg-orange-500/10 text-orange-500 border-orange-500/20";
-        }
-    };
-
     const handleExport = () => {
         const headers = ["Transaction ID", "User", "Event", "Amount", "Status", "Date"];
         const csvContent = [
             headers.join(","),
             ...payments.map(p => [
-                p.transactionId,
-                `"${p.user}"`, // Quote to handle commas
-                `"${p.event}"`,
+                p.transaction_id,
+                `"${p.user_name || p.user}"`,
+                `"${p.event_name || p.event}"`,
                 p.amount,
                 p.status,
                 new Date(p.date).toISOString()
@@ -134,6 +143,32 @@ export default function PaymentsTable() {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    };
+
+    const handleApprove = async (id: string) => {
+        const payment = payments.find(p => String(p.id) === id);
+        try {
+            await paymentApi.approve(id);
+            toast.success("Payment approved successfully!");
+
+            if (payment) {
+                // Background email trigger
+                sendPaymentConfirmationEmail(
+                    payment.email,
+                    payment.user_name || "Member",
+                    payment.event_name || "Event",
+                    payment.amount,
+                    payment.transaction_id
+                ).then(res => {
+                    if (res.success) toast.success("Confirmation email sent!");
+                }).catch(err => console.error("Email sending failed:", err));
+            }
+
+            fetchPayments();
+        } catch (error) {
+            console.error("Failed to approve payment:", error);
+            toast.error("Failed to approve payment");
+        }
     };
 
     return (
@@ -152,6 +187,9 @@ export default function PaymentsTable() {
                                     className="pl-9 w-[200px] sm:w-[300px]"
                                 />
                             </div>
+                            <Button variant="outline" size="icon" onClick={fetchPayments} disabled={loading}>
+                                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                            </Button>
                             <Button variant="outline" className="gap-2" onClick={handleExport}>
                                 <Download className="h-4 w-4" />
                                 Export
@@ -185,140 +223,124 @@ export default function PaymentsTable() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {filteredPayments.map((payment) => (
-                                    <TableRow key={payment.id} className="group">
-                                        <TableCell className="font-mono text-sm">
-                                            {payment.transactionId}
-                                        </TableCell>
-                                        <TableCell className="font-medium">{payment.user}</TableCell>
-                                        <TableCell className="text-muted-foreground">
-                                            {payment.event}
-                                        </TableCell>
-                                        <TableCell className="font-semibold">
-                                            {payment.amount}
-                                        </TableCell>
-                                        <TableCell>
-                                            {payment.screenshot ? (
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="h-8 gap-2 text-primary"
-                                                    onClick={() => setSelectedScreenshot(payment.screenshot!)}
-                                                >
-                                                    <ImageIcon className="w-4 h-4" />
-                                                    View
-                                                </Button>
-                                            ) : (
-                                                <span className="text-xs text-muted-foreground">-</span>
-                                            )}
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge variant="outline" className={getMethodColor(payment.method)}>
-                                                {payment.method}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge
-                                                variant="outline"
-                                                className={`${getStatusColor(payment.status)} flex items-center gap-1 w-fit`}
-                                            >
-                                                {getStatusIcon(payment.status)}
-                                                {payment.status}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell className="text-muted-foreground">
-                                            {new Date(payment.date).toLocaleString()}
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="opacity-0 group-hover:opacity-100 transition-opacity"
-                                                    >
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuItem onClick={() => {
-                                                        // Detailed info for dialog
-                                                        alert(`Transaction Details:\nID: ${payment.transactionId}\nUser: ${payment.user}\nAmount: ${payment.amount}\nDate: ${payment.date}`);
-                                                    }}>
-                                                        View Details
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => {
-                                                        // Generate PDF Receipt
-                                                        const doc = new jsPDF();
-
-                                                        // Title
-                                                        doc.setFontSize(22);
-                                                        doc.setTextColor(44, 62, 80);
-                                                        doc.text("Payment Receipt", 105, 20, { align: "center" });
-
-                                                        // Divider
-                                                        doc.setLineWidth(0.5);
-                                                        doc.line(20, 30, 190, 30);
-
-                                                        // Content
-                                                        doc.setFontSize(12);
-                                                        doc.setTextColor(0, 0, 0);
-
-                                                        const startY = 50;
-                                                        const lineHeight = 10;
-
-                                                        doc.text(`Transaction ID: ${payment.transactionId}`, 20, startY);
-                                                        doc.text(`Date: ${new Date(payment.date).toLocaleString()}`, 20, startY + lineHeight);
-                                                        doc.text(`Event: ${payment.event}`, 20, startY + lineHeight * 2);
-                                                        doc.text(`User: ${payment.user}`, 20, startY + lineHeight * 3);
-
-                                                        // Amount Highlight
-                                                        doc.setFontSize(16);
-                                                        doc.setTextColor(0, 128, 0); // Green
-                                                        doc.text(`Amount Paid: ${payment.amount}`, 20, startY + lineHeight * 5);
-
-                                                        // Status
-                                                        doc.setFontSize(12);
-                                                        doc.setTextColor(0, 0, 0);
-                                                        doc.text(`Status: ${payment.status.toUpperCase()}`, 20, startY + lineHeight * 6);
-
-                                                        // Footer
-                                                        doc.setFontSize(10);
-                                                        doc.setTextColor(128, 128, 128);
-                                                        doc.text("Thank you for your payment!", 105, 280, { align: "center" });
-                                                        doc.text("AI Verse Hub", 105, 285, { align: "center" });
-
-                                                        doc.save(`Receipt-${payment.transactionId}.pdf`);
-                                                    }}>
-                                                        Download Receipt (PDF)
-                                                    </DropdownMenuItem>
-                                                    {payment.status === "pending" && (
-                                                        <DropdownMenuItem
-                                                            className="text-green-600 font-medium"
-                                                            onClick={() => {
-                                                                const updatedPayments = payments.map(p =>
-                                                                    p.id === payment.id ? { ...p, status: "completed" as const } : p
-                                                                );
-                                                                setPayments(updatedPayments);
-                                                                localStorage.setItem("allPayments", JSON.stringify(updatedPayments));
-                                                                // In real app, send email notification here
-                                                            }}
-                                                        >
-                                                            <CheckCircle className="w-4 h-4 mr-2" />
-                                                            Approve Payment
-                                                        </DropdownMenuItem>
-                                                    )}
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
+                                {loading ? (
+                                    <TableRow>
+                                        <TableCell colSpan={9} className="h-24 text-center">
+                                            <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2" />
+                                            Loading transactions...
                                         </TableCell>
                                     </TableRow>
-                                ))}
-                                {filteredPayments.length === 0 && (
+                                ) : filteredPayments.length === 0 ? (
                                     <TableRow>
                                         <TableCell colSpan={9} className="h-24 text-center">
                                             No payments found.
                                         </TableCell>
                                     </TableRow>
+                                ) : (
+                                    filteredPayments.map((payment) => (
+                                        <TableRow key={payment.id} className="group">
+                                            <TableCell className="font-mono text-sm">
+                                                {payment.transaction_id}
+                                            </TableCell>
+                                            <TableCell className="font-medium">{payment.user_name || `User ID: ${payment.user}`}</TableCell>
+                                            <TableCell className="text-muted-foreground">
+                                                {payment.event_name || `Event ID: ${payment.event}`}
+                                            </TableCell>
+                                            <TableCell className="font-semibold">
+                                                {payment.amount}
+                                            </TableCell>
+                                            <TableCell>
+                                                {payment.screenshot ? (
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="h-8 gap-2 text-primary"
+                                                        onClick={() => setSelectedScreenshot(payment.screenshot!)}
+                                                    >
+                                                        <ImageIcon className="w-4 h-4" />
+                                                        View
+                                                    </Button>
+                                                ) : (
+                                                    <span className="text-xs text-muted-foreground">-</span>
+                                                )}
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge variant="outline">
+                                                    {payment.method || "N/A"}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge
+                                                    variant="outline"
+                                                    className={`${getStatusColor(payment.status)} flex items-center gap-1 w-fit`}
+                                                >
+                                                    {getStatusIcon(payment.status)}
+                                                    {payment.status}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell className="text-muted-foreground">
+                                                {new Date(payment.date).toLocaleString()}
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="opacity-0 group-hover:opacity-100 transition-opacity"
+                                                        >
+                                                            <MoreHorizontal className="h-4 w-4" />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuItem onClick={() => {
+                                                            alert(`Transaction Details:\nID: ${payment.transaction_id}\nUser: ${payment.user_name}\nAmount: ${payment.amount}\nDate: ${payment.date}`);
+                                                        }}>
+                                                            View Details
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={() => {
+                                                            const doc = new jsPDF();
+                                                            doc.setFontSize(22);
+                                                            doc.setTextColor(44, 62, 80);
+                                                            doc.text("Payment Receipt", 105, 20, { align: "center" });
+                                                            doc.setLineWidth(0.5);
+                                                            doc.line(20, 30, 190, 30);
+                                                            doc.setFontSize(12);
+                                                            doc.setTextColor(0, 0, 0);
+                                                            const startY = 50;
+                                                            const lineHeight = 10;
+                                                            doc.text(`Transaction ID: ${payment.transaction_id}`, 20, startY);
+                                                            doc.text(`Date: ${new Date(payment.date).toLocaleString()}`, 20, startY + lineHeight);
+                                                            doc.text(`Event: ${payment.event_name}`, 20, startY + lineHeight * 2);
+                                                            doc.text(`User: ${payment.user_name}`, 20, startY + lineHeight * 3);
+                                                            doc.setFontSize(16);
+                                                            doc.setTextColor(0, 128, 0);
+                                                            doc.text(`Amount Paid: ${payment.amount}`, 20, startY + lineHeight * 5);
+                                                            doc.setFontSize(12);
+                                                            doc.setTextColor(0, 0, 0);
+                                                            doc.text(`Status: ${payment.status.toUpperCase()}`, 20, startY + lineHeight * 6);
+                                                            doc.setFontSize(10);
+                                                            doc.setTextColor(128, 128, 128);
+                                                            doc.text("Thank you for your payment!", 105, 280, { align: "center" });
+                                                            doc.text("AI Verse Hub", 105, 285, { align: "center" });
+                                                            doc.save(`Receipt-${payment.transaction_id}.pdf`);
+                                                        }}>
+                                                            Download Receipt (PDF)
+                                                        </DropdownMenuItem>
+                                                        {payment.status === "pending" && (
+                                                            <DropdownMenuItem
+                                                                className="text-green-600 font-medium"
+                                                                onClick={() => handleApprove(payment.id)}
+                                                            >
+                                                                <CheckCircle className="w-4 h-4 mr-2" />
+                                                                Approve Payment
+                                                            </DropdownMenuItem>
+                                                        )}
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
                                 )}
                             </TableBody>
                         </Table>
@@ -345,9 +367,9 @@ export default function PaymentsTable() {
                             Close
                         </Button>
                         <Button onClick={() => {
-                            // In a real app, this would download the image
+                            if (!selectedScreenshot) return;
                             const link = document.createElement('a');
-                            link.href = selectedScreenshot!;
+                            link.href = selectedScreenshot;
                             link.download = 'payment-proof.png';
                             document.body.appendChild(link);
                             link.click();

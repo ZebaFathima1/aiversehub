@@ -110,11 +110,11 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group hoverable">
             <motion.div
-              className="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center shadow-lg"
+              className="w-10 h-10 rounded-xl bg-white overflow-hidden flex items-center justify-center shadow-lg p-1.5"
               whileHover={{ scale: 1.1, rotate: 5 }}
               transition={{ type: "spring", stiffness: 400 }}
             >
-              <Cpu className="w-5 h-5 text-primary-foreground" />
+              <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
             </motion.div>
             <div className="flex flex-col">
               <span className="font-display font-bold text-lg leading-tight gradient-text">

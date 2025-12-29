@@ -52,67 +52,43 @@ function StatCard({ title, value, change, icon: Icon, index }: StatCardProps) {
     );
 }
 
-export default function DashboardStats() {
-    // Basic stats from events data (static)
-    const eventStats = getEventStatistics();
-
-    // Dynamic stats from localStorage
-    const storedPayments = localStorage.getItem("allPayments");
-    let dynamicRevenue = 0;
-    let dynamicRegistrations = 0;
-    let dynamicUsers = 0;
-
-    if (storedPayments) {
-        try {
-            const payments = JSON.parse(storedPayments);
-            // Calculate total revenue from real payments
-            // Assuming amounts are like "₹499", removing non-digits
-            dynamicRevenue = payments.reduce((sum: number, p: any) => {
-                const amount = parseInt(p.amount.replace(/[^0-9]/g, "")) || 0;
-                return sum + amount;
-            }, 0);
-
-            dynamicRegistrations = payments.length;
-
-            // Count unique users
-            const uniqueUsers = new Set(payments.map((p: any) => p.email));
-            dynamicUsers = uniqueUsers.size;
-
-        } catch (e) {
-            console.error("Failed to parse paymentsstats", e);
-        }
-    }
-
-    // Combine static and dynamic stats?
-    // Since we cleared dummy data, eventStats might be low. 
-    // Let's rely on dynamic data if available + the static event counts.
-
+export default function DashboardStats({ data, loading }: { data: any, loading: boolean }) {
     const stats = [
         {
             title: "Total Users",
-            value: dynamicUsers.toLocaleString(), // Use dynamic user count
-            change: 100, // Show simplified positive change
+            value: data?.total_users?.toLocaleString() || "0",
+            change: 0,
             icon: Users,
         },
         {
             title: "Active Events",
-            value: eventStats.activeEvents,
+            value: data?.active_events || "0",
             change: 0,
             icon: Calendar,
         },
         {
             title: "Total Registrations",
-            value: dynamicRegistrations.toLocaleString(), // Use dynamic registrations
-            change: 100,
+            value: data?.total_registrations?.toLocaleString() || "0",
+            change: 0,
             icon: TrendingUp,
         },
         {
             title: "Revenue",
-            value: formatCurrency(dynamicRevenue), // Use dynamic revenue
-            change: 100,
+            value: formatCurrency(data?.total_revenue || 0),
+            change: 0,
             icon: CreditCard,
         },
     ];
+
+    if (loading) {
+        return (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                {[1, 2, 3, 4].map((i) => (
+                    <Card key={i} className="h-32 animate-pulse bg-muted" />
+                ))}
+            </div>
+        );
+    }
 
     return (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">

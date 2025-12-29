@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'accounts',
+    'events',
 ]
 
 MIDDLEWARE = [
@@ -110,6 +111,9 @@ STATIC_ROOT = str(BASE_DIR / 'staticfiles')
 
 # Use WhiteNoise to serve files efficiently.
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

@@ -7,7 +7,7 @@ import { HelmetProvider } from "react-helmet-async";
 import CustomCursor from "./components/CustomCursor";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
-import AdminRedirect from "./pages/AdminRedirect";
+
 import EventDetails from "./pages/EventDetails";
 import Register from "./pages/Register";
 import Payment from "./pages/Payment";
@@ -20,6 +20,7 @@ import AdminEvents from "./pages/AdminEvents";
 import AdminPayments from "./pages/AdminPayments";
 import AdminSettings from "./pages/AdminSettings";
 import EmailTest from "./pages/EmailTest";
+import EventGalleryPage from "./pages/EventGalleryPage";
 
 const queryClient = new QueryClient();
 
@@ -34,7 +35,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/admin/*" element={<AdminRedirect />} />
+
             <Route path="/event/ai-verse-4" element={<EventDetails />} />
             <Route path="/register" element={<Register />} />
             <Route path="/payment" element={<Payment />} />
@@ -47,6 +48,7 @@ const App = () => (
             <Route path="/admin/payments" element={<AdminPayments />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
             <Route path="/email-test" element={<EmailTest />} />
+            <Route path="/gallery/:eventId" element={<EventGalleryPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

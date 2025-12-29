@@ -85,12 +85,12 @@ const LoadingScreen = ({ onLoadingComplete }: LoadingScreenProps) => {
           transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
         >
           <motion.div
-            className="w-20 h-20 rounded-2xl gradient-bg flex items-center justify-center shadow-glow"
+            className="w-20 h-20 rounded-2xl bg-white overflow-hidden flex items-center justify-center shadow-glow p-2"
             animate={{
               boxShadow: [
-                "0 0 30px hsl(221 83% 53% / 0.4)",
-                "0 0 60px hsl(221 83% 53% / 0.6)",
-                "0 0 30px hsl(221 83% 53% / 0.4)",
+                "0 0 30px rgba(16, 185, 129, 0.4)",
+                "0 0 60px rgba(16, 185, 129, 0.6)",
+                "0 0 30px rgba(16, 185, 129, 0.4)",
               ],
             }}
             transition={{ duration: 2, repeat: Infinity }}
@@ -98,8 +98,9 @@ const LoadingScreen = ({ onLoadingComplete }: LoadingScreenProps) => {
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+              className="w-full h-full flex items-center justify-center"
             >
-              <Cpu className="w-10 h-10 text-primary-foreground" />
+              <img src="/logo.png" alt="Loading Logo" className="w-12 h-12 object-contain" />
             </motion.div>
           </motion.div>
         </motion.div>

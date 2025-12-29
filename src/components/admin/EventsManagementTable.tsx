@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
     MoreHorizontal,
@@ -8,6 +8,7 @@ import {
     Edit,
     Trash2,
     Eye,
+    RefreshCw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,10 +29,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { allEvents, formatCurrency, formatDate, type Event } from "@/data/events";
+import { formatCurrency, type Event } from "@/data/events";
 import EventDetailsDialog from "./EventDetailsDialog";
 import EditEventDialog from "./EditEventDialog";
 import { toast } from "sonner";
+import { eventApi } from "@/lib/api";
 
 export default function EventsManagementTable() {
     const [searchQuery, setSearchQuery] = useState("");
@@ -39,9 +41,28 @@ export default function EventsManagementTable() {
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
     const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
+    const [events, setEvents] = useState<Event[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const filteredEvents = allEvents.filter((event) => {
-        const matchesSearch = event.name
+    const fetchEvents = async () => {
+        setLoading(true);
+        try {
+            const response = await eventApi.getAll();
+            setEvents(response.data);
+        } catch (error) {
+            console.error("Failed to fetch events:", error);
+            toast.error("Failed to load events from server");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchEvents();
+    }, []);
+
+    const filteredEvents = events.filter((event) => {
+        const matchesSearch = (event.name || "")
             .toLowerCase()
             .includes(searchQuery.toLowerCase());
         const matchesTab = activeTab === "all" || event.status === activeTab;
@@ -69,14 +90,70 @@ export default function EventsManagementTable() {
         setEditDialogOpen(true);
     };
 
-    const handleDelete = (event: Event) => {
-        // In a real app, this would call an API
-        toast.success(`Event "${event.name}" would be deleted (demo mode)`);
+    const handleDelete = async (event: Event) => {
+        if (!confirm(`Are you sure you want to delete "${event.name}"?`)) return;
+
+        try {
+            await eventApi.delete(event.id);
+            toast.success(`Event "${event.name}" deleted successfully`);
+            fetchEvents();
+        } catch (error) {
+            console.error("Failed to delete event:", error);
+            toast.error("Failed to delete event");
+        }
     };
 
-    const handleSaveEvent = (updatedEvent: Event) => {
-        // In a real app, this would update the backend
-        toast.success("Event updated successfully!");
+    const handleSaveEvent = async (data: any) => {
+        try {
+            const formData = new FormData();
+
+            // Map camelCase to snake_case for backend
+            const mapping: Record<string, string> = {
+                name: "name",
+                title: "title",
+                year: "year",
+                date: "date",
+                endDate: "end_date",
+                venue: "venue",
+                time: "time",
+                description: "description",
+                tagline: "tagline",
+                capacity: "capacity",
+                price: "price",
+                status: "status",
+                highlights: "highlights",
+            };
+
+            Object.keys(data).forEach(key => {
+                const backendKey = mapping[key] || key;
+                if (key === "highlights") {
+                    formData.append(backendKey, JSON.stringify(data[key]));
+                } else if (key === "image") {
+                    if (data[key] instanceof File) {
+                        formData.append("image", data[key]);
+                    } else if (typeof data[key] === "string" && data[key].startsWith("http")) {
+                        // If it's a URL, we might not be able to "upload" it easily as a file
+                        // unless the backend supports image URLs. Our model uses ImageField.
+                        // For now, only actual file uploads will work for the 'image' field.
+                    }
+                } else {
+                    formData.append(backendKey, data[key]);
+                }
+            });
+
+            if (selectedEvent) {
+                await eventApi.update(selectedEvent.id, formData);
+                toast.success("Event updated successfully!");
+            } else {
+                await eventApi.create(formData);
+                toast.success("Event created successfully!");
+            }
+            fetchEvents();
+            setEditDialogOpen(false);
+        } catch (error) {
+            console.error("Failed to save event:", error);
+            toast.error("Failed to save event. Please check your data.");
+        }
     };
 
     return (
@@ -96,7 +173,13 @@ export default function EventsManagementTable() {
                                         className="pl-9 w-[200px] sm:w-[300px]"
                                     />
                                 </div>
-                                <Button className="gap-2">
+                                <Button variant="outline" size="icon" onClick={fetchEvents} disabled={loading}>
+                                    <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                                </Button>
+                                <Button className="gap-2" onClick={() => {
+                                    setSelectedEvent(null);
+                                    setEditDialogOpen(true);
+                                }}>
                                     <Plus className="h-4 w-4" />
                                     Create Event
                                 </Button>
@@ -132,69 +215,84 @@ export default function EventsManagementTable() {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {filteredEvents.map((event) => (
-                                        <TableRow key={event.id} className="group">
-                                            <TableCell className="font-medium">{event.name}</TableCell>
-                                            <TableCell className="text-muted-foreground">
-                                                {new Date(event.date).toLocaleDateString()}
-                                            </TableCell>
-                                            <TableCell className="text-muted-foreground">
-                                                {event.venue}
-                                            </TableCell>
-                                            <TableCell>{event.capacity}</TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-2">
-                                                    <span>{event.registered}</span>
-                                                    <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
-                                                        <div
-                                                            className="h-full bg-gradient-to-r from-primary to-secondary"
-                                                            style={{
-                                                                width: `${(event.registered / event.capacity) * 100}%`,
-                                                            }}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="font-semibold">
-                                                {formatCurrency(event.revenue)}
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge variant="outline" className={getStatusColor(event.status)}>
-                                                    {event.status}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="opacity-0 group-hover:opacity-100 transition-opacity"
-                                                        >
-                                                            <MoreHorizontal className="h-4 w-4" />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end">
-                                                        <DropdownMenuItem onClick={() => handleViewDetails(event)}>
-                                                            <Eye className="h-4 w-4 mr-2" />
-                                                            View Details
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem onClick={() => handleEdit(event)}>
-                                                            <Edit className="h-4 w-4 mr-2" />
-                                                            Edit Event
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem
-                                                            className="text-destructive"
-                                                            onClick={() => handleDelete(event)}
-                                                        >
-                                                            <Trash2 className="h-4 w-4 mr-2" />
-                                                            Delete Event
-                                                        </DropdownMenuItem>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
+                                    {loading ? (
+                                        <TableRow>
+                                            <TableCell colSpan={8} className="h-24 text-center">
+                                                <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2" />
+                                                Loading events...
                                             </TableCell>
                                         </TableRow>
-                                    ))}
+                                    ) : filteredEvents.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={8} className="h-24 text-center">
+                                                No events found.
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : (
+                                        filteredEvents.map((event) => (
+                                            <TableRow key={event.id} className="group">
+                                                <TableCell className="font-medium">{event.name}</TableCell>
+                                                <TableCell className="text-muted-foreground">
+                                                    {new Date(event.date).toLocaleDateString()}
+                                                </TableCell>
+                                                <TableCell className="text-muted-foreground">
+                                                    {event.venue}
+                                                </TableCell>
+                                                <TableCell>{event.capacity}</TableCell>
+                                                <TableCell>
+                                                    <div className="flex items-center gap-2">
+                                                        <span>{event.registered}</span>
+                                                        <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
+                                                            <div
+                                                                className="h-full bg-gradient-to-r from-primary to-secondary"
+                                                                style={{
+                                                                    width: `${(event.registered / event.capacity) * 100}%`,
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="font-semibold">
+                                                    {formatCurrency(event.revenue)}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge variant="outline" className={getStatusColor(event.status)}>
+                                                        {event.status}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger asChild>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="opacity-0 group-hover:opacity-100 transition-opacity"
+                                                            >
+                                                                <MoreHorizontal className="h-4 w-4" />
+                                                            </Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent align="end">
+                                                            <DropdownMenuItem onClick={() => handleViewDetails(event)}>
+                                                                <Eye className="h-4 w-4 mr-2" />
+                                                                View Details
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem onClick={() => handleEdit(event)}>
+                                                                <Edit className="h-4 w-4 mr-2" />
+                                                                Edit Event
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem
+                                                                className="text-destructive"
+                                                                onClick={() => handleDelete(event)}
+                                                            >
+                                                                <Trash2 className="h-4 w-4 mr-2" />
+                                                                Delete Event
+                                                            </DropdownMenuItem>
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    )}
                                 </TableBody>
                             </Table>
                         </div>

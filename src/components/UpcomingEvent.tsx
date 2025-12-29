@@ -94,7 +94,7 @@ const UpcomingEvent = () => {
               <ScrollReveal key={index} delay={0.2 + index * 0.1}>
                 <TiltCard tiltAmount={10} className="h-full">
                   <motion.div
-                    className="glass-card rounded-2xl p-6 text-center group h-full"
+                    className="bg-gradient-to-br from-[#1a3a3a] via-[#1e4040] to-[#1a3535] border border-emerald-900/30 rounded-2xl p-6 text-center group h-full"
                     whileHover={{
                       boxShadow: "0 0 30px hsl(221 83% 53% / 0.3)",
                     }}
@@ -120,7 +120,7 @@ const UpcomingEvent = () => {
               <ScrollReveal key={index} delay={0.4 + index * 0.1}>
                 <TiltCard tiltAmount={12} className="h-full">
                   <motion.div
-                    className="glass-card rounded-2xl p-8 group h-full"
+                    className="bg-gradient-to-br from-[#1a3a3a] via-[#1e4040] to-[#1a3535] border border-emerald-900/30 rounded-2xl p-8 group h-full"
                     whileHover={{
                       background: "linear-gradient(145deg, hsl(0 0% 100% / 0.15) 0%, hsl(0 0% 100% / 0.08) 100%)",
                     }}

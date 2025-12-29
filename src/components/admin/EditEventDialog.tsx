@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -55,9 +55,9 @@ export default function EditEventDialog({
     onOpenChange,
     onSave,
 }: EditEventDialogProps) {
-    const [highlights, setHighlights] = useState<string[]>(event?.highlights || []);
+    const [highlights, setHighlights] = useState<string[]>([]);
+    const [imagePreview, setImagePreview] = useState<string>("");
     const [newHighlight, setNewHighlight] = useState("");
-    const [imagePreview, setImagePreview] = useState<string>(event?.image || "");
     const [imageFile, setImageFile] = useState<File | null>(null);
 
     const {
@@ -65,26 +65,52 @@ export default function EditEventDialog({
         handleSubmit,
         setValue,
         watch,
+        reset,
         formState: { errors },
     } = useForm<EventFormData>({
         resolver: zodResolver(eventSchema),
-        defaultValues: event
-            ? {
-                name: event.name,
-                title: event.title,
-                year: event.year,
-                date: event.date,
-                endDate: event.endDate || "",
-                venue: event.venue,
-                time: event.time || "",
-                description: event.description,
-                tagline: event.tagline || "",
-                capacity: event.capacity,
-                price: event.price,
-                status: event.status,
-            }
-            : undefined,
     });
+
+    useEffect(() => {
+        if (open) {
+            if (event) {
+                reset({
+                    name: event.name,
+                    title: event.title,
+                    year: event.year,
+                    date: event.date,
+                    endDate: event.endDate || "",
+                    venue: event.venue,
+                    time: event.time || "",
+                    description: event.description,
+                    tagline: event.tagline || "",
+                    capacity: event.capacity,
+                    price: event.price,
+                    status: event.status,
+                });
+                setHighlights(event.highlights || []);
+                setImagePreview(event.image || "");
+            } else {
+                reset({
+                    name: "",
+                    title: "",
+                    year: new Date().getFullYear().toString(),
+                    date: "",
+                    endDate: "",
+                    venue: "",
+                    time: "",
+                    description: "",
+                    tagline: "",
+                    capacity: 100,
+                    price: 0,
+                    status: "upcoming",
+                });
+                setHighlights([]);
+                setImagePreview("");
+            }
+            setImageFile(null);
+        }
+    }, [event, open, reset]);
 
     const status = watch("status");
 
@@ -112,31 +138,18 @@ export default function EditEventDialog({
     };
 
     const onSubmit = (data: EventFormData) => {
-        if (!event) return;
-
-        const updatedEvent: Event = {
-            ...event,
-            ...data,
-            highlights,
-            image: imagePreview,
-            // Keep existing values for fields not in the form
-            registered: event.registered,
-            revenue: event.revenue,
-            participants: event.participants,
-        };
-
-        // In a real app, this would send to backend
-        console.log("Saving event:", updatedEvent);
-        toast.success("Event updated successfully!");
-
+        // We handle the Save operation in the parent component via onSave
         if (onSave) {
-            onSave(updatedEvent);
+            const finalData = {
+                ...data,
+                highlights,
+                // If we have an image file, we might need special handling in onSave
+                // but for now we pass the preview or existing URL
+                image: imageFile || imagePreview
+            };
+            onSave(finalData as any);
         }
-
-        onOpenChange(false);
     };
-
-    if (!event) return null;
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
