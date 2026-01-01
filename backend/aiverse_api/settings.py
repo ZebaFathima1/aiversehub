@@ -1,16 +1,20 @@
-import os
+"""
+Django settings for aiverse_api project.
+"""
+
 from pathlib import Path
 from datetime import timedelta
 
-# Base directory
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY NOTE: replace for production or use environment variables
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'change-me-in-production')
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'django-insecure-your-secret-key-change-in-production'
 
-DEBUG = os.environ.get('DJANGO_DEBUG', '1') == '1'
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
 
 # Application definition
 INSTALLED_APPS = [
@@ -20,16 +24,22 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
+    # Third party apps
     'rest_framework',
+    'rest_framework_simplejwt',
     'corsheaders',
-    'accounts',
+    
+    # Local apps
+    'users',
     'events',
+    'payments',
+    'analytics',
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # CORS middleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -43,8 +53,6 @@ ROOT_URLCONF = 'aiverse_api.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        # Point Django templates to the frontend build output so the
-        # SPA `index.html` can be served directly by Django.
         'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -60,7 +68,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'aiverse_api.wsgi.application'
 
-# Database - using SQLite for local development
+# Database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -68,6 +76,7 @@ DATABASES = {
     }
 }
 
+# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -83,66 +92,79 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Internationalization
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 USE_I18N = True
 USE_TZ = True
 
-# Static files served under `/static/`.
-STATIC_URL = '/static/'
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Serve the built Vite frontend from Django. The project layout places the
-# frontend at the repository root; Vite outputs a `dist/` folder there by
-# default. `BASE_DIR` currently points at the `backend/` folder, so
-# `FRONTEND_DIR = BASE_DIR.parent` points to the repo root.
-FRONTEND_DIR = BASE_DIR.parent
-FRONTEND_DIST = FRONTEND_DIR / 'dist'
-
-# Include the frontend `dist` in template and static search paths so Django
-# can serve `index.html` and the static assets when you run the Django
-# server on port 8000 after building the frontend.
-import os
-TEMPLATES[0]['DIRS'] = [str(FRONTEND_DIST)]
-STATICFILES_DIRS = [str(FRONTEND_DIST)]
-
-# Collected static files will be placed under backend/staticfiles when you
-# run `collectstatic`.
-STATIC_ROOT = str(BASE_DIR / 'staticfiles')
-
-# Use WhiteNoise to serve files efficiently.
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-MEDIA_URL = '/media/'
+# Media files
+MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CORS - allow local frontend during development
-CORS_ALLOW_ALL_ORIGINS = True
+# Custom user model
+AUTH_USER_MODEL = 'users.User'
 
-# DRF + JWT configuration
+# REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 50,
 }
 
+# JWT settings
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': True,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
 }
 
-# When proxying the Django admin through a frontend dev server (e.g. Vite on
-# http://localhost:8080) the Origin header will be the frontend origin. Add
-# that origin here so Django's CSRF checks allow admin POSTs coming through
-# the proxy during development.
-CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:8080',
-    'http://127.0.0.1:8080',
+# CORS settings
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
 ]
 
-# Recommended for development when proxying; tighten in production.
-ALLOWED_HOSTS = [
-    '127.0.0.1',
-    'localhost',
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
 ]

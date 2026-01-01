@@ -33,12 +33,9 @@ export const eventGalleries: EventGalleryData[] = [
         name: "AI Verse",
         date: "November 2022",
         description: "A Two Day Workshop on AI & Machine Learning",
-        coverImage: "/gallery/aiverse1/day1.jpg",
+        coverImage: "/gallery/datastargaze/banner.png", // Fallback since aiverse1 is missing
         images: [
-            { id: 1, src: "/gallery/aiverse1/day1.jpg", title: "Day 1 - Opening & Cultural" },
-            { id: 2, src: "/gallery/aiverse1/speakers.png", title: "Guest Speakers & Faculty" },
-            { id: 3, src: "/gallery/aiverse1/awards.png", title: "Student Presentations & Awards" },
-            { id: 4, src: "/gallery/aiverse1/day2.png", title: "Day 2 - Workshop Sessions" },
+            { id: 1, src: "/gallery/datastargaze/banner.png", title: "Memories" },
         ],
     },
     {
@@ -46,15 +43,10 @@ export const eventGalleries: EventGalleryData[] = [
         name: "AI Verse 2.0",
         date: "2023",
         description: "A Three Days National-Level Workshop on Prompt Engineering & NLP",
-        coverImage: "/gallery/aiverse2/flashmob.jpg",
+        coverImage: "/gallery/aiverse2/keynote.png",
         images: [
-            { id: 1, src: "/gallery/aiverse2/flashmob.jpg", title: "Flashmob & Poster Launch" },
-            { id: 2, src: "/gallery/aiverse2/group_photo.jpg", title: "Participants Group Photo" },
-            { id: 3, src: "/gallery/aiverse2/felicitation.jpg", title: "Guest Felicitation" },
-            { id: 4, src: "/gallery/aiverse2/keynote.png", title: "Keynote Session" },
-            { id: 5, src: "/gallery/aiverse2/tech_session.png", title: "Emerging Technology Session" },
-            { id: 6, src: "/gallery/aiverse2/inauguration.jpg", title: "Inauguration Ceremony" },
-            { id: 7, src: "/gallery/aiverse2/day1_audience.jpg", title: "Day 1 - Audience" },
+            { id: 1, src: "/gallery/aiverse2/keynote.png", title: "Keynote Session" },
+            { id: 2, src: "/gallery/aiverse2/tech_session.png", title: "Emerging Technology Session" },
         ],
     },
     {

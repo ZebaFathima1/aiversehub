@@ -15,7 +15,7 @@ import Footer from "@/components/Footer";
 
 const EmailTest = () => {
     const [serviceId, setServiceId] = useState(EMAILJS_CONFIG.serviceId);
-    const [templateId, setTemplateId] = useState(EMAILJS_CONFIG.templateId);
+    const [templateId, setTemplateId] = useState(EMAILJS_CONFIG.registrationTemplateId);
     const [publicKey, setPublicKey] = useState(EMAILJS_CONFIG.publicKey);
     const [isSending, setIsSending] = useState(false);
     const [emailSent, setEmailSent] = useState(false);

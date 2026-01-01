@@ -47,7 +47,7 @@ const Footer = () => {
               </div>
             </Link>
             <p className="text-background/70 leading-relaxed max-w-md mb-6">
-              Department of Computer Science & Engineering (Artificial Intelligence & Machine Learning). 
+              Department of Computer Science & Engineering (Artificial Intelligence & Machine Learning).
               Pioneering the future of technology through innovation, research, and hands-on learning.
             </p>
             <div className="flex gap-4">

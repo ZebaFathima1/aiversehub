@@ -56,19 +56,19 @@ export default function DashboardStats({ data, loading }: { data: any, loading: 
     const stats = [
         {
             title: "Total Users",
-            value: data?.total_users?.toLocaleString() || "0",
+            value: (data?.total_users ?? 0).toLocaleString(),
             change: 0,
             icon: Users,
         },
         {
             title: "Active Events",
-            value: data?.active_events || "0",
+            value: data?.active_events ?? data?.total_events ?? "0",
             change: 0,
             icon: Calendar,
         },
         {
             title: "Total Registrations",
-            value: data?.total_registrations?.toLocaleString() || "0",
+            value: (data?.total_registrations ?? data?.total_payments ?? 0).toLocaleString(),
             change: 0,
             icon: TrendingUp,
         },

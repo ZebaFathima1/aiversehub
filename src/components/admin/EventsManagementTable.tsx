@@ -48,10 +48,28 @@ export default function EventsManagementTable() {
         setLoading(true);
         try {
             const response = await eventApi.getAll();
-            setEvents(response.data);
+            const data = Array.isArray(response.data) ? response.data : (response.data?.results || []);
+
+            if (Array.isArray(data)) {
+                const mappedEvents = data.map((e: any) => ({
+                    ...e,
+                    name: e.title,
+                    endDate: e.end_date,
+                    price: Number(e.registration_fee) || 0,
+                    revenue: Number(e.revenue) || 0,
+                    registered: Number(e.total_registrations) || 0,
+                    capacity: Number(e.max_participants) || 0,
+                    image: e.cover_image_url || e.featured_image_url,
+                }));
+                setEvents(mappedEvents);
+            } else {
+                console.error("Expected array for events, got:", response.data);
+                setEvents([]);
+            }
         } catch (error) {
             console.error("Failed to fetch events:", error);
             toast.error("Failed to load events from server");
+            setEvents([]);
         } finally {
             setLoading(false);
         }
@@ -61,13 +79,13 @@ export default function EventsManagementTable() {
         fetchEvents();
     }, []);
 
-    const filteredEvents = events.filter((event) => {
-        const matchesSearch = (event.name || "")
+    const filteredEvents = Array.isArray(events) ? events.filter((event) => {
+        const matchesSearch = (event?.name || "")
             .toLowerCase()
             .includes(searchQuery.toLowerCase());
-        const matchesTab = activeTab === "all" || event.status === activeTab;
+        const matchesTab = activeTab === "all" || event?.status === activeTab;
         return matchesSearch && matchesTab;
-    });
+    }) : [];
 
     const getStatusColor = (status: Event["status"]) => {
         switch (status) {

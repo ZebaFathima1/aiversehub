@@ -27,17 +27,19 @@ const EventsTimeline = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await eventApi.getAll();
-        // Filter for completed events and sort by date ascending (oldest to newest journey)
-        const past = response.data
-          .filter((e: any) => e.status === 'completed')
-          .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        // Fetch from the specific past events endpoint
+        const response = await fetch('/api/events/past/');
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+
+        // Sort by date ascending (oldest to newest journey)
+        const past = data.sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
         if (past.length > 0) {
           setEvents(past);
         }
       } catch (error) {
-        console.error("Failed to fetch past events dynamicly:", error);
+        console.error("Failed to fetch past events dinamically:", error);
       } finally {
         setLoading(false);
       }
@@ -46,9 +48,11 @@ const EventsTimeline = () => {
   }, []);
 
   const getBestImage = (event: any) => {
+    // Priority: Computed cover image URL from backend -> original image field -> first gallery image
+    if (event.cover_image_url) return event.cover_image_url;
     if (event.image) return getImageUrl(event.image);
-    if (event.gallery_images && event.gallery_images.length > 0) {
-      return getImageUrl(event.gallery_images[0].image);
+    if (event.images && event.images.length > 0) {
+      return getImageUrl(event.images[0].image_url);
     }
     return "/placeholder.png";
   };
@@ -120,14 +124,28 @@ const EventsTimeline = () => {
                   index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
                 )}
               >
-                {/* Timeline Dot */}
-                <motion.div
-                  className="absolute left-6 md:left-1/2 -translate-x-1/2 w-4 h-4 rounded-full gradient-bg shadow-glow z-10"
-                  initial={{ scale: 0 }}
-                  whileInView={{ scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.3 + index * 0.2, type: "spring" }}
-                />
+                {/* Timeline Dot with pulse */}
+                <div className="absolute left-6 md:left-1/2 -translate-x-1/2 z-10 w-4 h-4">
+                  <motion.div
+                    className="absolute inset-0 rounded-full gradient-bg shadow-glow"
+                    initial={{ scale: 0 }}
+                    whileInView={{ scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.3 + index * 0.2, type: "spring" }}
+                  />
+                  <motion.div
+                    className="absolute inset-0 rounded-full bg-primary"
+                    animate={{
+                      scale: [1, 2, 1],
+                      opacity: [0.5, 0, 0.5],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  />
+                </div>
 
                 {/* Content Card */}
                 <AnimatedCard
@@ -154,11 +172,11 @@ const EventsTimeline = () => {
                           className="px-3 py-1 rounded-full gradient-bg text-primary-foreground text-sm font-bold"
                           whileHover={{ scale: 1.1 }}
                         >
-                          {event.year}
+                          {event.year || (event.date ? new Date(event.date).getFullYear() : "2024")}
                         </motion.span>
                         <div className="flex items-center gap-1 text-primary-foreground/80 text-sm">
                           <Users className="w-4 h-4" />
-                          {event.participants}
+                          {event.participants || event.total_registrations || "0"}
                         </div>
                       </div>
                     </div>
@@ -174,7 +192,7 @@ const EventsTimeline = () => {
 
                       {/* Highlights with staggered animation */}
                       <div className="flex flex-wrap gap-2">
-                        {(typeof event.highlights === 'string' ? JSON.parse(event.highlights) : event.highlights).map((highlight: string, idx: number) => (
+                        {(event.highlights ? (typeof event.highlights === 'string' ? JSON.parse(event.highlights) : event.highlights) : []).map((highlight: string, idx: number) => (
                           <motion.span
                             key={idx}
                             className="px-3 py-1 rounded-full bg-muted text-muted-foreground text-xs font-medium"
@@ -206,13 +224,14 @@ const EventsTimeline = () => {
                       initial={{ opacity: 0, x: index % 2 === 0 ? 20 : -20 }}
                       whileInView={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.8, duration: 0.5 }}
-                      className="p-6 rounded-2xl border bg-primary/5 border-primary/20 backdrop-blur-sm shadow-glow group hover:bg-primary/10 transition-colors duration-300"
+                      whileHover={{ scale: 1.02 }}
+                      className="p-8 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md shadow-2xl group hover:border-primary/30 transition-all duration-500"
                     >
-                      <h4 className="text-xl font-bold mb-2 text-primary flex items-center gap-2">
-                        <Sparkles className="w-5 h-5 animate-pulse" />
+                      <h4 className="text-xl font-display font-bold mb-3 text-primary flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 animate-pulse text-accent" />
                         Event Insight
                       </h4>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
+                      <p className="text-sm text-primary/80 leading-relaxed font-medium">
                         {eventInsights[event.name]}
                       </p>
                     </motion.div>

@@ -14,54 +14,45 @@ interface TeamMember {
 
 const faculty: TeamMember[] = [
   {
-    name: "Dr. Rajesh Kumar",
-    role: "Head of Department",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face",
+    name: "Dr. K. Prakash",
+    role: "Principal",
+    image: "/team/prakash.png",
     linkedin: "#",
-    email: "rajesh.kumar@university.edu",
+    email: "principal@vaagdevi.edu.in",
   },
   {
-    name: "Dr. Priya Sharma",
-    role: "Associate Professor",
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&h=300&fit=crop&crop=face",
+    name: "Dr. Thanveer Jahan",
+    role: "Head of Department CSE(AI&ML)",
+    image: "/team/tanveer.png",
     linkedin: "#",
-    email: "priya.sharma@university.edu",
+    email: "hod.aiml@vaagdevi.edu.in",
   },
   {
-    name: "Dr. Amit Patel",
+    name: "Mrs. A. Swetha",
     role: "Assistant Professor",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face",
+    image: "/team/swetha.jpg",
     linkedin: "#",
-    twitter: "#",
+  },
+  {
+    name: "Mr. Salim Amirali Jiwani",
+    role: "Assistant Professor",
+    image: "/team/salim.png",
+    linkedin: "#",
   },
 ];
 
 const coordinators: TeamMember[] = [
   {
-    name: "Arjun Reddy",
-    role: "Event Coordinator",
+    name: "Mirza Amaanullah Baig",
+    role: "Student Coordinator",
     image: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=300&h=300&fit=crop&crop=face",
     linkedin: "#",
   },
   {
-    name: "Sneha Iyer",
-    role: "Technical Lead",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop&crop=face",
-    linkedin: "#",
-    twitter: "#",
-  },
-  {
-    name: "Rahul Menon",
-    role: "Design Lead",
+    name: "Mohammad Riyaz",
+    role: "Student Coordinator",
     image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&h=300&fit=crop&crop=face",
     linkedin: "#",
-  },
-  {
-    name: "Divya Nair",
-    role: "Marketing Lead",
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop&crop=face",
-    linkedin: "#",
-    email: "divya.nair@student.edu",
   },
 ];
 
@@ -85,7 +76,7 @@ const TeamMemberCard = ({ member, index }: { member: TeamMember; index: number }
             transition={{ duration: 0.5 }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
-          
+
           {/* Social Links Overlay */}
           <motion.div
             className="absolute inset-0 flex items-center justify-center gap-3 bg-primary/80 opacity-0"
@@ -180,7 +171,7 @@ const TeamSection = () => {
               Faculty Mentors
             </h3>
           </ScrollReveal>
-          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {faculty.map((member, index) => (
               <TeamMemberCard key={member.name} member={member} index={index} />
             ))}
@@ -194,7 +185,7 @@ const TeamSection = () => {
               Student Coordinators
             </h3>
           </ScrollReveal>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
             {coordinators.map((member, index) => (
               <TeamMemberCard key={member.name} member={member} index={index} />
             ))}

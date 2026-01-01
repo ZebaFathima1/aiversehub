@@ -37,15 +37,13 @@ interface User {
     id: number;
     username: string;
     email: string;
-    first_name: string;
-    last_name: string;
-    profile?: {
-        role: string;
-        department: string;
-        year: string;
-    };
+    full_name: string;
+    college?: string;
+    profile_image_url?: string;
+    is_admin: boolean;
+    is_active: boolean;
     avatar?: string;
-    registrations?: number;
+    total_registrations?: number;
     joinedDate?: string;
 }
 
@@ -60,10 +58,18 @@ export default function UsersTable() {
         setLoading(true);
         try {
             const response = await userApi.getAll();
-            setUsers(response.data);
+            const data = Array.isArray(response.data) ? response.data : (response.data?.results || []);
+
+            if (Array.isArray(data)) {
+                setUsers(data);
+            } else {
+                console.error("Expected array for users, got:", response.data);
+                setUsers([]);
+            }
         } catch (error) {
             console.error("Failed to fetch users:", error);
             toast.error("Failed to load users from server");
+            setUsers([]);
         } finally {
             setLoading(false);
         }
@@ -73,12 +79,12 @@ export default function UsersTable() {
         fetchUsers();
     }, []);
 
-    const filteredUsers = users.filter(
+    const filteredUsers = Array.isArray(users) ? users.filter(
         (user) =>
-            (user.username || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (user.email || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (`${user.first_name} ${user.last_name}`).toLowerCase().includes(searchQuery.toLowerCase())
-    );
+            (user?.username || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (user?.email || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (user?.full_name || "").toLowerCase().includes(searchQuery.toLowerCase())
+    ) : [];
 
     const handleViewUser = (user: User) => {
         setSelectedUser(user);
@@ -164,14 +170,13 @@ export default function UsersTable() {
                                                 <TableCell>
                                                     <div className="flex items-center gap-3">
                                                         <Avatar className="h-10 w-10">
-                                                            <AvatarImage src={user.avatar} />
+                                                            <AvatarImage src={user.profile_image_url || user.avatar} />
                                                             <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white">
-                                                                {user.first_name ? user.first_name[0] : user.username[0]}
-                                                                {user.last_name ? user.last_name[0] : ""}
+                                                                {user.full_name ? user.full_name[0] : (user.username ? user.username[0] : "?")}
                                                             </AvatarFallback>
                                                         </Avatar>
                                                         <div className="flex flex-col">
-                                                            <span className="font-medium">{user.first_name} {user.last_name}</span>
+                                                            <span className="font-medium">{user.full_name}</span>
                                                             <span className="text-xs text-muted-foreground">@{user.username}</span>
                                                         </div>
                                                     </div>
@@ -181,15 +186,15 @@ export default function UsersTable() {
                                                 </TableCell>
                                                 <TableCell>
                                                     <Badge
-                                                        variant={user.profile?.role === "admin" ? "default" : "secondary"}
+                                                        variant={user.is_admin ? "default" : "secondary"}
                                                     >
-                                                        {user.profile?.role || "user"}
+                                                        {user.is_admin ? "Admin" : "User"}
                                                     </Badge>
                                                 </TableCell>
                                                 <TableCell className="text-muted-foreground">
-                                                    {user.profile?.department || "N/A"}
+                                                    {user.college || "N/A"}
                                                 </TableCell>
-                                                <TableCell>{user.registrations || 0}</TableCell>
+                                                <TableCell>{user.total_registrations || 0}</TableCell>
                                                 <TableCell className="text-right">
                                                     <DropdownMenu>
                                                         <DropdownMenuTrigger asChild>

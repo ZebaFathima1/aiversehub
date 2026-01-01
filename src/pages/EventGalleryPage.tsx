@@ -1,19 +1,57 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, X, ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
+import { ArrowLeft, X, ChevronLeft, ChevronRight, ZoomIn, RefreshCw } from "lucide-react";
 import { Helmet } from "react-helmet-async";
-import { getEventById, GalleryImage } from "@/data/galleryData";
+import { eventApi, getImageUrl } from "@/lib/api";
+import { eventGalleries } from "@/data/galleryData";
 
 const EventGalleryPage = () => {
     const { eventId } = useParams<{ eventId: string }>();
     const navigate = useNavigate();
-    const event = getEventById(eventId || "");
+    const [event, setEvent] = useState<any | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
+    const [selectedImage, setSelectedImage] = useState<any | null>(null);
     const [currentIndex, setCurrentIndex] = useState(0);
 
-    if (!event) {
+    useEffect(() => {
+        const fetchEvent = async () => {
+            if (!eventId) return;
+            try {
+                const response = await eventApi.getById(eventId);
+                setEvent(response.data);
+            } catch (err) {
+                console.error("Failed to fetch event gallery from API, trying static data:", err);
+                const staticEvent = eventGalleries.find(g => g.id === eventId || g.id.replace('-', '') === eventId?.replace('-', ''));
+                if (staticEvent) {
+                    setEvent({
+                        id: staticEvent.id,
+                        title: staticEvent.name,
+                        description: staticEvent.description,
+                        date: staticEvent.date,
+                        gallery_images: staticEvent.images.map(img => ({ id: img.id, image: img.src, title: img.title }))
+                    });
+                } else {
+                    setError("Event not found");
+                }
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchEvent();
+    }, [eventId]);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-background flex items-center justify-center">
+                <RefreshCw className="w-10 h-10 animate-spin text-primary mb-4" />
+            </div>
+        );
+    }
+
+    if (error || !event) {
         return (
             <div className="min-h-screen bg-background flex items-center justify-center">
                 <div className="text-center">
@@ -29,7 +67,12 @@ const EventGalleryPage = () => {
         );
     }
 
-    const openLightbox = (image: GalleryImage, index: number) => {
+    const images = event.images || event.gallery_images || [];
+    const title = event.title || event.name;
+    const description = event.description || event.short_description;
+    const date = event.date || new Date().toISOString();
+
+    const openLightbox = (image: any, index: number) => {
         setSelectedImage(image);
         setCurrentIndex(index);
     };
@@ -37,21 +80,21 @@ const EventGalleryPage = () => {
     const closeLightbox = () => setSelectedImage(null);
 
     const goToPrevious = () => {
-        const newIndex = currentIndex === 0 ? event.images.length - 1 : currentIndex - 1;
+        const newIndex = currentIndex === 0 ? images.length - 1 : currentIndex - 1;
         setCurrentIndex(newIndex);
-        setSelectedImage(event.images[newIndex]);
+        setSelectedImage(images[newIndex]);
     };
 
     const goToNext = () => {
-        const newIndex = currentIndex === event.images.length - 1 ? 0 : currentIndex + 1;
+        const newIndex = currentIndex === images.length - 1 ? 0 : currentIndex + 1;
         setCurrentIndex(newIndex);
-        setSelectedImage(event.images[newIndex]);
+        setSelectedImage(images[newIndex]);
     };
 
     return (
         <>
             <Helmet>
-                <title>{event.name} Gallery - AI-Verse Hub</title>
+                <title>{title} Gallery - AI-Verse Hub</title>
             </Helmet>
 
             <div className="min-h-screen bg-background pt-20 pb-16">
@@ -72,16 +115,16 @@ const EventGalleryPage = () => {
 
                         <div className="text-center">
                             <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-4">
-                                {event.date}
+                                {new Date(date).toLocaleDateString()}
                             </span>
                             <h1 className="text-4xl md:text-5xl font-display font-bold mb-4">
-                                <span className="gradient-text">{event.name}</span>
+                                <span className="gradient-text">{title}</span>
                             </h1>
                             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                                {event.description}
+                                {description}
                             </p>
                             <p className="text-sm text-muted-foreground mt-2">
-                                {event.images.length} photos
+                                {images.length} photos
                             </p>
                         </div>
                     </motion.div>
@@ -93,7 +136,7 @@ const EventGalleryPage = () => {
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.2 }}
                     >
-                        {event.images.map((image, index) => (
+                        {images.map((image: any, index: number) => (
                             <motion.div
                                 key={image.id}
                                 className="cursor-pointer"
@@ -105,8 +148,8 @@ const EventGalleryPage = () => {
                             >
                                 <div className="relative aspect-[4/3] rounded-2xl overflow-hidden group">
                                     <img
-                                        src={image.src}
-                                        alt={image.title}
+                                        src={getImageUrl(image.image || image.image_url)}
+                                        alt={image.caption || image.title || title}
                                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                     />
 
@@ -120,7 +163,7 @@ const EventGalleryPage = () => {
                                                 <ZoomIn className="w-5 h-5 text-primary-foreground" />
                                             </div>
                                         </div>
-                                        <p className="text-primary-foreground font-semibold">{image.title}</p>
+                                        <p className="text-primary-foreground font-semibold">{image.caption || image.title}</p>
                                     </div>
                                 </div>
                             </motion.div>
@@ -181,8 +224,8 @@ const EventGalleryPage = () => {
                             onClick={(e) => e.stopPropagation()}
                         >
                             <img
-                                src={selectedImage.src}
-                                alt={selectedImage.title}
+                                src={getImageUrl(selectedImage.image || selectedImage.image_url)}
+                                alt={selectedImage.caption || selectedImage.title}
                                 className="max-w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl"
                             />
 
@@ -192,7 +235,7 @@ const EventGalleryPage = () => {
                                 initial={{ opacity: 0, y: 30 }}
                                 animate={{ opacity: 1, y: 0 }}
                             >
-                                <h3 className="text-xl font-display font-bold text-background">{selectedImage.title}</h3>
+                                <h3 className="text-xl font-display font-bold text-background">{selectedImage.caption || selectedImage.title}</h3>
                             </motion.div>
                         </motion.div>
 
@@ -203,7 +246,7 @@ const EventGalleryPage = () => {
                             animate={{ opacity: 1, y: 0 }}
                         >
                             <span className="gradient-text font-bold">{currentIndex + 1}</span>
-                            <span className="text-background/50"> / {event.images.length}</span>
+                            <span className="text-background/50"> / {images.length}</span>
                         </motion.div>
                     </motion.div>
                 )}

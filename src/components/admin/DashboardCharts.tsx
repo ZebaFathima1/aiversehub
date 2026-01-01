@@ -50,7 +50,7 @@ const paymentStatusData = [
     { name: "Failed", value: 144, color: "hsl(0, 84%, 60%)" },
 ];
 
-export default function DashboardCharts({ data, loading }: { data: any[], loading: boolean }) {
+export default function DashboardCharts({ data, loading }: { data: any, loading: boolean }) {
     if (loading) {
         return (
             <div className="grid gap-6 md:grid-cols-2 mt-6">
@@ -62,13 +62,21 @@ export default function DashboardCharts({ data, loading }: { data: any[], loadin
         );
     }
 
-    // Revenue Trend Data
-    const revenueTrendData = data || [];
+    // Safely extract chart data with fallbacks
+    const registrationsByDay = Array.isArray(data?.registrations_by_day) ? data.registrations_by_day : [];
+    const paymentStatusDist = Array.isArray(data?.payment_status_distribution) ? data.payment_status_distribution : [];
+
+    // Revenue Trend Data - use registrations data for now
+    const revenueTrendData = registrationsByDay.map((item: any) => ({
+        name: item.date || 'N/A',
+        revenue: item.count * 500, // Estimated revenue
+        registrations: item.count || 0
+    }));
 
     // Mock User Growth Data (Backend doesn't provide it yet, so we'll simulate based on registrations)
-    const userGrowthData = (data || []).map(item => ({
-        month: item.name,
-        users: Math.floor(item.registrations * 1.5) + 500 // Simulated growth
+    const userGrowthData = registrationsByDay.map((item: any) => ({
+        month: item.date || 'N/A',
+        users: Math.floor((item.count || 0) * 1.5) + 10 // Simulated growth
     }));
 
     return (

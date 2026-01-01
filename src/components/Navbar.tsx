@@ -117,41 +117,52 @@ const Navbar = () => {
               <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
             </motion.div>
             <div className="flex flex-col">
-              <span className="font-display font-bold text-lg leading-tight gradient-text">
-                CSE (AIML)
+              <span className="font-display font-bold text-xl leading-tight text-cyan-400">
+                CSE (AI&ML)
               </span>
-              <span className="text-xs text-muted-foreground leading-tight hidden sm:block">
-                Vaagdevi College of Engineering & Technology
+              <span className="text-xs text-muted-foreground leading-tight">
+                Vaagdevi College of Engineering
               </span>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-8">
-            {navLinks.map((link, index) => (
-              <motion.a
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "text-sm font-medium transition-colors relative group hoverable",
-                  location.pathname === link.href
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ y: -2 }}
-              >
-                {link.label}
-                <motion.span
-                  className="absolute -bottom-1 left-0 w-full h-0.5 gradient-bg origin-left"
-                  initial={{ scaleX: 0 }}
-                  whileHover={{ scaleX: 1 }}
-                  transition={{ duration: 0.3 }}
-                />
-              </motion.a>
-            ))}
+          <div className="hidden lg:flex items-center gap-2">
+            {[{ href: "/", label: "Home" },
+            { href: "/#events", label: "Events" },
+            { href: "/#upcoming", label: "AI Verse 4.0" },
+            { href: "/#gallery", label: "Gallery" },
+            { href: "/#team", label: "Team" }
+            ].map((link, index) => {
+              const isActive = location.pathname === link.href || (link.href !== '/' && location.hash === link.href.split('#')[1]);
+
+              return (
+                <motion.a
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "relative px-4 py-2 text-sm font-medium transition-colors rounded-full group",
+                    isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                  )}
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <span className="relative z-10">{link.label}</span>
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeTab"
+                      className="absolute inset-0 bg-primary/10 rounded-full"
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
+                  <motion.div
+                    className="absolute inset-0 bg-primary/5 rounded-full opacity-0 group-hover:opacity-100"
+                    transition={{ duration: 0.3 }}
+                  />
+                </motion.a>
+              );
+            })}
           </div>
 
           {/* CTA Buttons / User Profile */}

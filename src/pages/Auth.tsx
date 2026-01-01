@@ -31,7 +31,7 @@ const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!isLogin && formData.password !== formData.confirmPassword) {
@@ -43,34 +43,76 @@ const Auth = () => {
       return;
     }
 
-    // Create comprehensive user profile for persistence
-    const userProfile = {
-      name: formData.name || formData.email.split("@")[0],
-      email: formData.email,
-      phone: "", // Default empty
-      college: "", // Default empty
-      department: "", // Default empty
-      year: "", // Default empty
-      location: "India",
-      joinedDate: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
-      bio: "Passionate about technology and innovation.",
-      avatar: ""
-    };
+    try {
+      let response;
 
-    // Save persistent user profile
-    localStorage.setItem("userProfile", JSON.stringify(userProfile));
+      if (isLogin) {
+        // Login via Django API
+        response = await fetch('/api/auth/login/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+          }),
+        });
+      } else {
+        // Register via Django API
+        response = await fetch('/api/auth/register/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: formData.email,
+            username: formData.email.split('@')[0],
+            full_name: formData.name || formData.email.split('@')[0],
+            password: formData.password,
+            password_confirm: formData.confirmPassword,
+          }),
+        });
+      }
 
-    // Dispatch custom event for auth change
-    window.dispatchEvent(new Event("authChange"));
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || Object.values(error)[0] || 'Authentication failed');
+      }
 
-    // Demo: Just show success and navigate
-    toast({
-      title: isLogin ? "Welcome back!" : "Account created!",
-      description: isLogin
-        ? "You've successfully logged in."
-        : "Your account has been created successfully.",
-    });
-    navigate("/");
+      const data = await response.json();
+
+      // Save JWT tokens and user data
+      sessionStorage.setItem('userData', JSON.stringify(data));
+
+      // Also save to localStorage for compatibility
+      const userProfile = {
+        name: data.user.full_name || data.user.username,
+        email: data.user.email,
+        phone: data.user.phone || "",
+        college: data.user.college || "",
+        department: "",
+        year: "",
+        location: "India",
+        joinedDate: new Date(data.user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+        bio: "Passionate about technology and innovation.",
+        avatar: data.user.profile_image_url || ""
+      };
+      localStorage.setItem("userProfile", JSON.stringify(userProfile));
+
+      // Dispatch custom event for auth change
+      window.dispatchEvent(new Event("authChange"));
+
+      toast({
+        title: isLogin ? "Welcome back!" : "Account created!",
+        description: isLogin
+          ? "You've successfully logged in."
+          : "Your account has been created successfully.",
+      });
+      navigate("/");
+    } catch (error: any) {
+      toast({
+        title: "Authentication failed",
+        description: error.message || "Please check your credentials and try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -122,8 +164,8 @@ const Auth = () => {
                 <button
                   onClick={() => setIsLogin(true)}
                   className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${isLogin
-                      ? "bg-primary text-primary-foreground shadow-lg"
-                      : "text-muted-foreground hover:text-foreground"
+                    ? "bg-primary text-primary-foreground shadow-lg"
+                    : "text-muted-foreground hover:text-foreground"
                     }`}
                 >
                   Login
@@ -131,8 +173,8 @@ const Auth = () => {
                 <button
                   onClick={() => setIsLogin(false)}
                   className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${!isLogin
-                      ? "bg-primary text-primary-foreground shadow-lg"
-                      : "text-muted-foreground hover:text-foreground"
+                    ? "bg-primary text-primary-foreground shadow-lg"
+                    : "text-muted-foreground hover:text-foreground"
                     }`}
                 >
                   Register

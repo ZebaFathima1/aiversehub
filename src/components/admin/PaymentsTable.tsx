@@ -73,15 +73,26 @@ export default function PaymentsTable() {
         setLoading(true);
         try {
             const response = await paymentApi.getAll();
-            const mappedPayments = response.data.map((p: any) => ({
-                ...p,
-                user_name: p.user_details ? `${p.user_details.first_name} ${p.user_details.last_name}`.trim() : (p.user_name || `User ${p.user}`),
-                email: p.user_details?.email || p.email || "",
-            }));
-            setPayments(mappedPayments);
+            const data = Array.isArray(response.data) ? response.data : (response.data?.results || []);
+
+            if (Array.isArray(data)) {
+                const mappedPayments = data.map((p: any) => ({
+                    ...p,
+                    user_name: p.user_details ? `${p.user_details.first_name || p.user_details.username} ${p.user_details.last_name || ""}`.trim() : (p.user_name || `User ${p.user}`),
+                    event_name: p.event_title || `Event ${p.event}`,
+                    email: p.user_details?.email || p.email || "",
+                    date: p.created_at || p.date || new Date().toISOString(),
+                    screenshot: p.payment_screenshot_url || p.payment_screenshot, // Added mapping
+                }));
+                setPayments(mappedPayments);
+            } else {
+                console.error("Expected array for payments, got:", response.data);
+                setPayments([]);
+            }
         } catch (error) {
             console.error("Failed to fetch payments:", error);
             toast.error("Failed to load payments from server");
+            setPayments([]);
         } finally {
             setLoading(false);
         }
@@ -91,13 +102,13 @@ export default function PaymentsTable() {
         fetchPayments();
     }, []);
 
-    const filteredPayments = payments.filter((payment) => {
+    const filteredPayments = Array.isArray(payments) ? payments.filter((payment) => {
         const matchesSearch =
-            (payment.transaction_id || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (payment.user_name || "").toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesTab = activeTab === "all" || payment.status === activeTab;
+            (payment?.transaction_id || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (payment?.user_name || "").toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesTab = activeTab === "all" || payment?.status === activeTab;
         return matchesSearch && matchesTab;
-    });
+    }) : [];
 
     const getStatusIcon = (status: Payment["status"]) => {
         switch (status) {

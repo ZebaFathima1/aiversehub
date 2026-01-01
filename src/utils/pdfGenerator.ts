@@ -9,15 +9,21 @@ export const downloadPDF = async (elementId: string, fileName: string) => {
 
     try {
         const canvas = await html2canvas(element, {
-            scale: 2,
+            scale: 3,
             useCORS: true,
             logging: false,
-            backgroundColor: "#ffffff"
+            backgroundColor: "#ffffff",
+            windowWidth: element.scrollWidth,
+            windowHeight: element.scrollHeight,
+            scrollX: 0,
+            scrollY: 0,
+            x: 0,
+            y: 0
         });
 
         const imgData = canvas.toDataURL("image/png");
         const pdf = new jsPDF({
-            orientation: "portrait",
+            orientation: canvas.width > canvas.height ? "landscape" : "portrait",
             unit: "px",
             format: [canvas.width, canvas.height]
         });

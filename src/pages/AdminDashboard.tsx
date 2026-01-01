@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { analyticsApi } from "@/lib/api";
 import { toast } from "sonner";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const quickActions = [
     {
@@ -52,6 +52,7 @@ const quickActions = [
 ];
 
 export default function AdminDashboard() {
+    const navigate = useNavigate();
     const [analyticsData, setAnalyticsData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
@@ -59,10 +60,35 @@ export default function AdminDashboard() {
         setLoading(true);
         try {
             const response = await analyticsApi.getDashboard();
+            console.log("Analytics data fetched successfully:", response.data);
             setAnalyticsData(response.data);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to fetch analytics:", error);
-            toast.error("Failed to load dashboard data");
+
+            // Check if it's an authentication error
+            if (error.response?.status === 401 || error.response?.data?.detail?.includes('Authentication')) {
+                toast.error("Please login as admin to view dashboard");
+            } else {
+                toast.error("Failed to load dashboard data");
+            }
+
+            // Set empty data structure to prevent crashes
+            setAnalyticsData({
+                stats: {
+                    total_users: 0,
+                    total_events: 0,
+                    active_events: 0,
+                    total_payments: 0,
+                    total_registrations: 0,
+                    total_revenue: 0
+                },
+                activities: [],
+                chart_data: {
+                    registrations_by_day: [],
+                    payment_status_distribution: [],
+                    event_status_distribution: []
+                }
+            });
         } finally {
             setLoading(false);
         }
