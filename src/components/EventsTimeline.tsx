@@ -226,7 +226,7 @@ const EventsTimeline = () => {
                 {/* Description Panel for Event Insights */}
                 {(eventInsights[event.title] || eventInsights[event.name]) && (
                   <div className={cn(
-                    "hidden md:block w-1/2 self-center",
+                    "w-full md:w-1/2 self-center",
                     index % 2 === 0 ? "md:pl-12" : "md:pr-12"
                   )}>
                     <motion.div
@@ -234,7 +234,7 @@ const EventsTimeline = () => {
                       whileInView={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.8, duration: 0.5 }}
                       whileHover={{ scale: 1.02, translateY: -5 }}
-                      className="p-10 rounded-[2.5rem] border border-blue-100/50 bg-white/40 backdrop-blur-xl shadow-[0_20px_50px_rgba(59,130,246,0.15)] group hover:border-primary/40 transition-all duration-500 relative overflow-hidden"
+                      className="p-6 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] border border-blue-100/50 bg-white/40 backdrop-blur-xl shadow-[0_20px_50px_rgba(59,130,246,0.15)] group hover:border-primary/40 transition-all duration-500 relative overflow-hidden ml-12 md:ml-0"
                     >
                       {/* Decorative background glow */}
                       <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/10 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity" />

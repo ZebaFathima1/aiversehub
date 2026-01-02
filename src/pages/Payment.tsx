@@ -151,7 +151,7 @@ const Payment = () => {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.2 }}
                   >
-                    <div className="bg-card rounded-2xl shadow-elevated p-8">
+                    <div className="bg-card rounded-2xl shadow-elevated p-6 sm:p-8">
                       <h1 className="text-2xl font-display font-bold mb-6">
                         <span className="gradient-text">Complete Payment</span>
                       </h1>
@@ -159,15 +159,15 @@ const Payment = () => {
                       {/* QR Code Section */}
                       <div className="flex flex-col items-center justify-center p-6 bg-white rounded-xl mb-6 border-2 border-dashed border-border">
                         <p className="text-black font-semibold mb-4 text-center">Scan QR Code to Pay</p>
-                        <div className="relative w-64 h-64 mb-4">
+                        <div className="relative w-48 h-48 sm:w-64 sm:h-64 mb-4">
                           <img
                             src={QR_CODE_IMAGE}
                             alt="Payment QR Code"
                             className="w-full h-full object-contain"
                           />
                         </div>
-                        <div className="flex items-center gap-2 p-2 bg-gray-100 rounded-lg w-full max-w-sm justify-between">
-                          <code className="text-black font-mono px-2 text-sm md:text-base">{UPI_ID}</code>
+                        <div className="flex items-center gap-2 p-2 bg-gray-100 rounded-lg w-full max-w-[280px] sm:max-w-sm justify-between">
+                          <code className="text-black font-mono px-2 text-[10px] sm:text-xs md:text-base truncate">{UPI_ID}</code>
                           <Button
                             variant="ghost"
                             size="icon"

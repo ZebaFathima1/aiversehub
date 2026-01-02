@@ -129,7 +129,7 @@ const Navbar = () => {
 
               {/* Transparent Logo Container */}
               <motion.div
-                className="relative w-18 h-18 lg:w-24 lg:h-24 flex items-center justify-center p-1"
+                className="relative w-14 h-14 sm:w-18 sm:h-18 lg:w-24 lg:h-24 flex items-center justify-center p-1 flex-shrink-0"
                 whileHover={{
                   scale: 1.05,
                   rotate: 3,
@@ -149,7 +149,7 @@ const Navbar = () => {
             <div className="flex flex-col gap-1">
               {/* Department Title with Gradient */}
               <motion.span
-                className="font-display font-bold text-xl lg:text-2xl leading-tight text-cyan-400"
+                className="font-display font-bold text-lg sm:text-xl lg:text-2xl leading-tight text-cyan-400 truncate"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3, duration: 0.6 }}
@@ -167,7 +167,7 @@ const Navbar = () => {
 
               {/* College Name - Highlighted */}
               <motion.span
-                className="text-sm lg:text-lg font-bold text-white leading-tight tracking-wide"
+                className="text-[10px] sm:text-xs lg:text-lg font-bold text-white leading-tight tracking-wide line-clamp-1"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.6, duration: 0.6 }}

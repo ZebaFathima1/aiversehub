@@ -46,10 +46,10 @@ export default function AIVerse4() {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.8 }}
                             >
-                                <h1 className="text-5xl md:text-7xl font-bold gradient-text mb-6">
+                                <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold gradient-text mb-6 px-2">
                                     AI Verse 4.0
                                 </h1>
-                                <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto">
+                                <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto px-4">
                                     Where AI Meets Power of Quantum Reality
                                 </p>
                             </motion.div>
@@ -59,7 +59,7 @@ export default function AIVerse4() {
 
                             {/* Event Details */}
                             <motion.div
-                                className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto"
+                                className="mt-16 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-5xl mx-auto px-4"
                                 initial={{ opacity: 0, y: 30 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.8, delay: 0.3 }}

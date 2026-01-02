@@ -93,9 +93,9 @@ const HeroSection = () => {
           {/* Main Heading */}
           <motion.div variants={itemVariants}>
             <h1 className="flex flex-col items-center justify-center font-display font-bold mb-6 text-primary-foreground">
-              <span className="text-3xl md:text-4xl mb-4 tracking-widest text-cyan-100 font-bold drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]">WELCOME TO</span>
+              <span className="text-xl sm:text-3xl md:text-4xl mb-4 tracking-widest text-cyan-100 font-bold drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]">WELCOME TO</span>
               <motion.span
-                className="text-6xl md:text-8xl lg:text-9xl bg-gradient-to-b from-[#bccbf3] via-[#7ae0ff] to-[#4ade80] bg-clip-text text-transparent bg-[length:200%_auto] font-black tracking-tighter drop-shadow-[0_0_40px_rgba(45,212,191,0.5)] leading-tight"
+                className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl bg-gradient-to-b from-[#bccbf3] via-[#7ae0ff] to-[#4ade80] bg-clip-text text-transparent bg-[length:200%_auto] font-black tracking-tighter drop-shadow-[0_0_40px_rgba(45,212,191,0.5)] leading-tight px-2"
                 animate={{ backgroundPosition: ["0% center", "200% center"] }}
                 transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
               >
@@ -112,7 +112,7 @@ const HeroSection = () => {
           {/* Subheading with staggered reveal */}
           <motion.p
             variants={itemVariants}
-            className="text-xl md:text-2xl text-primary-foreground/70 mb-12 max-w-2xl mx-auto leading-relaxed"
+            className="text-lg sm:text-xl md:text-2xl text-primary-foreground/70 mb-12 max-w-2xl mx-auto leading-relaxed px-4"
           >
             {"Innovating the Future with ".split("").map((char, i) => (
               <motion.span
@@ -197,7 +197,7 @@ const HeroSection = () => {
                 transition={{ delay: 1 + index * 0.15, type: "spring" }}
               >
                 <TiltCard tiltAmount={12} className="h-full">
-                  <div className="bg-gradient-to-br from-slate-900/90 via-slate-800/90 to-slate-900/90 border border-cyan-500/30 rounded-2xl p-4 md:p-6 text-center h-full shadow-[0_0_30px_rgba(34,211,238,0.1)] backdrop-blur-xl group hover:border-cyan-400/50 transition-colors">
+                  <div className="bg-gradient-to-br from-slate-900/90 via-slate-800/90 to-slate-900/90 border border-cyan-500/30 rounded-2xl p-3 sm:p-4 md:p-6 text-center h-full shadow-[0_0_30px_rgba(34,211,238,0.1)] backdrop-blur-xl group hover:border-cyan-400/50 transition-colors">
                     <motion.div
                       className="text-2xl md:text-4xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-cyan-200 mb-1"
                       animate={{

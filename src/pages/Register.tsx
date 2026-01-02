@@ -172,7 +172,7 @@ const Register = () => {
                     <Sparkles className="w-4 h-4" />
                     AI Verse 4.0
                   </span>
-                  <h1 className="text-4xl md:text-5xl font-display font-bold mb-4">
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold mb-4">
                     <span className="gradient-text">Event Registration</span>
                   </h1>
                   <p className="text-muted-foreground text-lg">
@@ -185,7 +185,7 @@ const Register = () => {
 
                 {/* Registration Form */}
                 <motion.div
-                  className="bg-card rounded-2xl shadow-elevated p-8 md:p-10"
+                  className="bg-card rounded-2xl shadow-elevated p-6 sm:p-8 md:p-10"
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
