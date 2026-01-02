@@ -41,18 +41,18 @@ const faculty: TeamMember[] = [
   },
 ];
 
-const coordinators: TeamMember[] = [
+const coordinators = [
   {
     name: "Mirza Amaanullah Baig",
-    role: "Student Coordinator",
-    image: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=300&h=300&fit=crop&crop=face",
-    linkedin: "#",
+    role: "Website Coordinator",
   },
   {
     name: "Mohammad Riyaz",
-    role: "Student Coordinator",
-    image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&h=300&fit=crop&crop=face",
-    linkedin: "#",
+    role: "Website Coordinator",
+  },
+  {
+    name: "Pardhu",
+    role: "Website Coordinator",
   },
 ];
 
@@ -178,16 +178,33 @@ const TeamSection = () => {
           </div>
         </div>
 
-        {/* Student Coordinators */}
         <div>
           <ScrollReveal>
-            <h3 className="text-2xl font-display font-bold text-center mb-8 gradient-text">
-              Student Coordinators
+            <h3 className="text-2xl font-display font-bold text-center mb-10 gradient-text">
+              Website Coordinators
             </h3>
           </ScrollReveal>
-          <div className="grid sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
+
+          <div className="flex flex-col items-center gap-8 max-w-2xl mx-auto">
             {coordinators.map((member, index) => (
-              <TeamMemberCard key={member.name} member={member} index={index} />
+              <motion.div
+                key={member.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="text-center group"
+              >
+                <div className="flex flex-col items-center">
+                  <h4 className="text-xl sm:text-2xl font-display font-bold text-foreground group-hover:text-primary transition-colors duration-300">
+                    {member.name}
+                  </h4>
+                  <div className="w-12 h-1 bg-gradient-to-r from-primary to-transparent rounded-full mt-1 mb-2 transform origin-center transition-all duration-300 group-hover:w-20" />
+                  <p className="text-sm font-medium text-muted-foreground tracking-widest uppercase">
+                    {member.role}
+                  </p>
+                </div>
+              </motion.div>
             ))}
           </div>
         </div>

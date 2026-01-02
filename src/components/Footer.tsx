@@ -41,7 +41,7 @@ const Footer = () => {
                 <span className="font-display font-bold text-xl text-background">
                   CSE (AIML)
                 </span>
-                <p className="text-xs text-background/60">
+                <p className="text-xs text-primary-foreground/90 font-medium">
                   Vaagdevi College of Engineering & Technology
                 </p>
               </div>
@@ -113,7 +113,7 @@ const Footer = () => {
                 whileHover={{ x: 3 }}
               >
                 <MapPin className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
-                <span className="text-background/70">
+                <span className="text-background/90 group-hover:text-primary transition-colors">
                   Department of CSE (AI & ML)<br />
                   Vaagdevi College of Engineering & Technology
                 </span>
@@ -149,7 +149,7 @@ const Footer = () => {
           <p className="text-background/50 text-sm text-center md:text-left">
             © {currentYear} CSE (AI & ML) Department, VCET. All rights reserved.
           </p>
-          <p className="text-background/50 text-sm text-center md:text-right">
+          <p className="text-background/90 text-sm text-center md:text-right font-medium">
             Vaagdevi College of Engineering & Technology
           </p>
         </motion.div>
