@@ -182,23 +182,27 @@ const TeamSection = () => {
             </h3>
           </ScrollReveal>
 
-          <div className="flex flex-col items-center gap-8 max-w-2xl mx-auto">
+          <div className="grid sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
             {coordinators.map((member, index) => (
-              <motion.div
-                key={member.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="text-center group"
-              >
-                <div className="flex flex-col items-center">
-                  <h4 className="text-xl sm:text-2xl font-display font-bold text-foreground group-hover:text-primary transition-colors duration-300">
-                    {member.name}
-                  </h4>
-                  <div className="w-12 h-1 bg-gradient-to-r from-primary to-transparent rounded-full mt-1 transform origin-center transition-all duration-300 group-hover:w-20" />
-                </div>
-              </motion.div>
+              <TiltCard key={member.name} className="h-full" tiltAmount={10}>
+                <motion.div
+                  className="glass-card rounded-2xl overflow-hidden h-full bg-card/80 border border-primary/10"
+                  initial={{ opacity: 0, y: 50 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1, type: "spring", stiffness: 100 }}
+                >
+                  {/* Empty White Image Placeholder */}
+                  <div className="h-48 bg-white" />
+
+                  {/* Info */}
+                  <div className="p-5 text-center">
+                    <h3 className="font-display font-bold text-lg text-foreground mb-1">
+                      {member.name}
+                    </h3>
+                  </div>
+                </motion.div>
+              </TiltCard>
             ))}
           </div>
         </div>
