@@ -58,7 +58,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields = ['id', 'email', 'username', 'full_name', 'phone', 'college', 
+        fields = ['id', 'email', 'username', 'full_name', 'phone', 'college', 'department', 'year_of_study',
                   'profile_image', 'profile_image_url', 'is_admin', 'created_at', 'updated_at']
         read_only_fields = ['id', 'email', 'created_at', 'updated_at']
     
@@ -75,13 +75,14 @@ class AdminUserSerializer(serializers.ModelSerializer):
     profile_image_url = serializers.SerializerMethodField()
     total_payments = serializers.SerializerMethodField()
     total_registrations = serializers.SerializerMethodField()
+    password = serializers.CharField(write_only=True, required=False) # Optional for updates, required for create logic can be handled
     
     class Meta:
         model = User
-        fields = ['id', 'email', 'username', 'full_name', 'phone', 'college', 
+        fields = ['id', 'email', 'username', 'full_name', 'phone', 'college', 'department', 'year_of_study',
                   'profile_image_url', 'is_admin', 'is_active', 'created_at', 
-                  'total_payments', 'total_registrations']
-        read_only_fields = ['id', 'email', 'created_at']
+                  'total_payments', 'total_registrations', 'password']
+        read_only_fields = ['id', 'created_at']
     
     def get_profile_image_url(self, obj):
         if obj.profile_image:
@@ -95,6 +96,23 @@ class AdminUserSerializer(serializers.ModelSerializer):
     
     def get_total_registrations(self, obj):
         return obj.eventregistration_set.count()
+        
+    def create(self, validated_data):
+        password = validated_data.pop('password', 'password123') # Default password if not provided
+        user = User.objects.create_user(**validated_data)
+        user.set_password(password)
+        user.save()
+        return user
+        
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+            
+        if password:
+            instance.set_password(password)
+        instance.save()
+        return instance
 
 
 class TokenSerializer(serializers.Serializer):

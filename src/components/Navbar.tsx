@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Cpu, User, LogOut, ChevronDown } from "lucide-react";
+import { Menu, X, Cpu, User, LogOut, ChevronDown, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,10 +12,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import PosterModal from "@/components/PosterModal";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isPosterModalOpen, setIsPosterModalOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
   const location = useLocation();
@@ -90,6 +92,7 @@ const Navbar = () => {
     { href: "/#upcoming", label: "AI Verse 4.0" },
     { href: "/#gallery", label: "Gallery" },
     { href: "/#team", label: "Team" },
+    { href: "/ai-verse-4", label: "🎨 AI Verse 4.0 Poster", highlight: true },
     { href: "/#faq", label: "FAQ" },
   ];
 
@@ -106,23 +109,71 @@ const Navbar = () => {
       )}
     >
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16 lg:h-20">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group hoverable">
+        <div className="flex items-center justify-between h-24 lg:h-28">
+          {/* Logo & Branding - Premium Design */}
+          <Link to="/" className="flex items-center gap-4 group hoverable">
+            {/* Logo Container with Glow */}
             <motion.div
-              className="w-10 h-10 rounded-xl bg-white overflow-hidden flex items-center justify-center shadow-lg p-1.5"
-              whileHover={{ scale: 1.1, rotate: 5 }}
-              transition={{ type: "spring", stiffness: 400 }}
+              className="relative"
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{
+                type: "spring",
+                stiffness: 200,
+                damping: 15,
+                delay: 0.1
+              }}
             >
-              <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
+              {/* Glow Effect */}
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/40 to-blue-500/40 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300" />
+
+              {/* Transparent Logo Container */}
+              <motion.div
+                className="relative w-18 h-18 lg:w-24 lg:h-24 flex items-center justify-center p-1"
+                whileHover={{
+                  scale: 1.05,
+                  rotate: 3,
+                  filter: "drop-shadow(0 0 15px rgba(0, 217, 255, 0.4))"
+                }}
+                transition={{ type: "spring", stiffness: 400 }}
+              >
+                <img
+                  src="/logo.png"
+                  alt="Vaagdevi College of Engineering Logo"
+                  className="w-full h-full object-contain"
+                />
+              </motion.div>
             </motion.div>
-            <div className="flex flex-col">
-              <span className="font-display font-bold text-xl leading-tight text-cyan-400">
+
+            {/* Text Branding */}
+            <div className="flex flex-col gap-1">
+              {/* Department Title with Gradient */}
+              <motion.span
+                className="font-display font-bold text-xl lg:text-2xl leading-tight text-cyan-400"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3, duration: 0.6 }}
+              >
                 CSE (AI&ML)
-              </span>
-              <span className="text-xs text-muted-foreground leading-tight">
+              </motion.span>
+
+              {/* Accent Line */}
+              <motion.div
+                className="h-0.5 bg-gradient-to-r from-cyan-400 to-transparent rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: "100%" }}
+                transition={{ delay: 0.5, duration: 0.8 }}
+              />
+
+              {/* College Name - Highlighted */}
+              <motion.span
+                className="text-xs lg:text-sm font-bold text-white leading-tight tracking-wide"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.6, duration: 0.6 }}
+              >
                 Vaagdevi College of Engineering
-              </span>
+              </motion.span>
             </div>
           </Link>
 
@@ -163,6 +214,67 @@ const Navbar = () => {
                 </motion.a>
               );
             })}
+
+            {/* AI Verse 4.0 Poster - Highlighted Button */}
+            <motion.button
+              onClick={() => setIsPosterModalOpen(true)}
+              className="relative px-5 py-2.5 text-sm font-extrabold rounded-full overflow-hidden group cursor-pointer shadow-lg shadow-primary/30"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              whileHover={{ scale: 1.08, y: -3 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              {/* Animated gradient background */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 bg-[length:200%_100%]"
+                animate={{
+                  backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "linear",
+                }}
+              />
+
+              {/* Glow effect */}
+              <div className="absolute inset-0 blur-lg bg-gradient-to-r from-cyan-400 to-purple-500 opacity-60" />
+
+              {/* Shimmer effect */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                animate={{
+                  x: ["-100%", "100%"],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "linear",
+                }}
+              />
+
+              {/* Text */}
+              <span className="relative z-10 text-white drop-shadow-lg flex items-center gap-2 font-bold tracking-wide">
+                <Sparkles className="w-4 h-4 animate-pulse" />
+                AI Verse 4.0 Poster
+                <Sparkles className="w-4 h-4 animate-pulse" />
+              </span>
+
+              {/* Pulse animation */}
+              <motion.div
+                className="absolute inset-0 border-2 border-white/40 rounded-full"
+                animate={{
+                  scale: [1, 1.15, 1],
+                  opacity: [0.6, 0, 0.6],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              />
+            </motion.button>
           </div>
 
           {/* CTA Buttons / User Profile */}
@@ -271,19 +383,44 @@ const Navbar = () => {
               className="lg:hidden py-4 border-t border-border/50 overflow-hidden"
             >
               <motion.div className="flex flex-col gap-4">
-                {navLinks.map((link, index) => (
-                  <motion.a
-                    key={link.href}
-                    href={link.href}
-                    className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    {link.label}
-                  </motion.a>
-                ))}
+                {navLinks.map((link, index) => {
+                  // Special handling for poster link
+                  if (link.highlight) {
+                    return (
+                      <motion.button
+                        key={link.href}
+                        onClick={() => {
+                          setIsPosterModalOpen(true);
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="text-sm font-extrabold text-white hover:text-white/90 transition-colors text-left px-5 py-3 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 border-2 border-white/20 shadow-lg shadow-primary/50 flex items-center gap-2"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <Sparkles className="w-4 h-4" />
+                        {link.label.replace('🎨 ', '')}
+                        <Sparkles className="w-4 h-4" />
+                      </motion.button>
+                    );
+                  }
+
+                  return (
+                    <motion.a
+                      key={link.href}
+                      href={link.href}
+                      className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      {link.label}
+                    </motion.a>
+                  );
+                })}
                 {isLoggedIn ? (
                   <>
                     <Link
@@ -330,6 +467,9 @@ const Navbar = () => {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Poster Modal */}
+      <PosterModal isOpen={isPosterModalOpen} onClose={() => setIsPosterModalOpen(false)} />
     </motion.nav>
   );
 };

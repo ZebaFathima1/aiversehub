@@ -17,7 +17,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
     serializer_class = PaymentSerializer
     
     def get_permissions(self):
-        if self.action in ['approve', 'reject', 'list', 'retrieve', 'update', 'partial_update', 'destroy']:
+        if self.action in ['approve', 'reject', 'list', 'retrieve', 'update', 'partial_update', 'destroy', 'create']:
             return [AllowAny()]
         return [IsAuthenticated()]
     
@@ -34,21 +34,61 @@ class PaymentViewSet(viewsets.ModelViewSet):
             if not self.request.user.is_admin:
                 queryset = queryset.filter(user=self.request.user)
         elif self.request.user.is_anonymous:
-            # If anonymous, we might want to allow seeing all for the admin dashboard
-            # But normally we'd restrict it. However, the requirement is NO admin login.
+            # Allow listing for admin dashboard via API if we are using AllowAny for list
+            # But normally we'd restrict.
             pass
         
-        return queryset
+        return queryset.order_by('-submitted_at')
     
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+    def create(self, request, *args, **kwargs):
+        data = request.data.copy()
+        
+        # Resolve User
+        user = None
+        if request.user.is_authenticated:
+            user = request.user
+        else:
+            email = data.get('email')
+            if not email:
+                return Response({'error': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            from django.contrib.auth import get_user_model
+            User = get_user_model()
+            try:
+                user = User.objects.get(email=email)
+            except User.DoesNotExist:
+                return Response({'error': 'User not found. Please register first.'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Resolve Event
+        from events.models import Event
+        event = Event.objects.filter(slug='ai-verse-4').first()
+        if not event:
+            event = Event.objects.filter(status='upcoming').first()
+            
+        # Prepare data for serializer
+        data['user'] = user.id
+        if event:
+            data['event'] = event.id
+            
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer, user=user)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def perform_create(self, serializer, user=None):
+        if not user:
+            user = self.request.user if self.request.user.is_authenticated else None
+            
+        serializer.save(user=user)
         
         # Create activity log
-        Activity.objects.create(
-            user=self.request.user,
-            action='submitted a payment',
-            activity_type='payment'
-        )
+        if user:
+            Activity.objects.create(
+                user=user,
+                action='submitted a payment',
+                activity_type='payment'
+            )
     
     @action(detail=True, methods=['post'], permission_classes=[AllowAny])
     def approve(self, request, pk=None):

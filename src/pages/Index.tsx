@@ -3,6 +3,7 @@ import { Helmet } from "react-helmet-async";
 import { AnimatePresence } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
+import FloatingPoster3D from "@/components/FloatingPoster3D";
 import EventsTimeline from "@/components/EventsTimeline";
 import UpcomingEvent from "@/components/UpcomingEvent";
 import EventGallery from "@/components/EventGallery";
@@ -22,9 +23,9 @@ const Index = () => {
     <>
       <Helmet>
         <title>CSE (AIML) - Artificial Intelligence & Machine Learning Department</title>
-        <meta 
-          name="description" 
-          content="Welcome to CSE (AIML) Department - Innovating the future with Artificial Intelligence and Machine Learning. Register for AI Verse 4.0, our flagship event." 
+        <meta
+          name="description"
+          content="Welcome to CSE (AIML) Department - Innovating the future with Artificial Intelligence and Machine Learning. Register for AI Verse 4.0, our flagship event."
         />
         <meta name="keywords" content="CSE, AIML, Artificial Intelligence, Machine Learning, AI Verse, College Events, Tech Events" />
       </Helmet>
@@ -37,7 +38,7 @@ const Index = () => {
           }} />
         )}
       </AnimatePresence>
-      
+
       {!isLoading && (
         <PageTransition>
           <div className="min-h-screen">

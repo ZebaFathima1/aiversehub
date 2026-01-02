@@ -60,10 +60,14 @@ export const registrationApi = {
     getAll: () => api.get("/registrations/"),
     getByUser: (userId: number) => api.get(`/registrations/?user=${userId}`),
     getByEvent: (eventSlug: string) => api.get(`/registrations/?event=${eventSlug}`),
+    create: (data: any) => api.post("/registrations/", data),
 };
 
 export const paymentApi = {
     getAll: () => api.get("/payments/"),
+    create: (data: any) => api.post("/payments/", data, {
+        headers: { "Content-Type": "multipart/form-data" },
+    }),
     approve: (id: string) => api.post(`/payments/${id}/approve/`),
 };
 
@@ -71,6 +75,7 @@ export const userApi = {
     getAll: () => api.get("/users/"),
     update: (id: number, data: any) => api.patch(`/users/${id}/`, data),
     delete: (id: number) => api.delete(`/users/${id}/`),
+    create: (data: any) => api.post("/users/", data), // Add create endpoint
     getProfile: () => api.get("/auth/profile/"),
 };
 

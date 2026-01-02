@@ -108,4 +108,57 @@ class EventRegistrationViewSet(viewsets.ModelViewSet):
         if event_slug:
             queryset = queryset.filter(event__slug=event_slug)
             
-        return queryset.order_by('-registered_at')
+    def create(self, request, *args, **kwargs):
+        # Allow creating user on the fly
+        data = request.data.copy()
+        email = data.get('email')
+        
+        if not email:
+            return Response({'error': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        # Get or create user
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        
+        user, created = User.objects.get_or_create(email=email, defaults={
+            'username': email,
+            'full_name': data.get('fullName', ''),
+            'phone': data.get('phone', ''),
+            'college': data.get('collegeName', ''),
+            'department': data.get('branchName', ''),
+            'year_of_study': data.get('yearOfStudy', ''),
+        })
+        
+        # If user exists, update details if provided
+        if not created:
+             if 'fullName' in data: user.full_name = data['fullName']
+             if 'phone' in data: user.phone = data['phone']
+             if 'collegeName' in data: user.college = data['collegeName']
+             if 'branchName' in data: user.department = data['branchName']
+             if 'yearOfStudy' in data: user.year_of_study = data['yearOfStudy']
+             user.save()
+        
+        from .models import Event
+        # Try to find event by slug 'ai-verse-4' (which matches Route in App.tsx)
+        # or maybe the first upcoming event.
+        event = Event.objects.filter(slug='ai-verse-4').first()
+        if not event:
+             event = Event.objects.filter(status='upcoming').first() # Fallback
+             
+        if not event:
+             return Response({'error': 'No active event found'}, status=status.HTTP_400_BAD_REQUEST)
+             
+        # Check if already registered
+        if EventRegistration.objects.filter(user=user, event=event).exists():
+            # Return existing registration but success status needed for frontend flow
+             return Response({
+                 'message': 'Already registered', 
+                 'id': EventRegistration.objects.filter(user=user, event=event).first().id,
+                 'user_id': user.id, 
+                 'event_slug': event.slug
+             }, status=status.HTTP_200_OK)
+             
+        registration = EventRegistration.objects.create(user=user, event=event)
+        
+        serializer = self.get_serializer(registration)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

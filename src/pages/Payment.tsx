@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { paymentApi } from "@/lib/api";
 
 const Payment = () => {
   const navigate = useNavigate();
@@ -56,6 +57,8 @@ const Payment = () => {
     }
   };
 
+
+
   const handlePayment = async () => {
     if (!enteredAmount) {
       toast.error("Please enter the amount you paid");
@@ -69,58 +72,50 @@ const Payment = () => {
 
     setIsProcessing(true);
 
-    // Simulate verification delay
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    try {
+      const formData = new FormData();
+      formData.append("email", registrationData.email);
+      formData.append("amount", enteredAmount);
+      formData.append("payment_screenshot", paymentScreenshot);
+      formData.append("transaction_id", `TXN${Date.now()}`); // Or ask user for it?
+      // The previous code generated transaction ID automatically. 
+      // But usually user should enter it or we generate it. 
+      // The UI has "Transaction ID" placeholder? No, just "Enter Amount Paid".
+      // And "Please ensure Transaction ID is visible in screenshot".
+      // So we generate a reference ID.
 
-    const registrationId = `AIVERSE4-${Date.now().toString(36).toUpperCase()}`;
+      // Note: Backend 'PaymentViewSet.create' expects 'email', 'amount', 'transaction_id' (optional?), 'payment_screenshot'.
+      // My backend implementation creates 'payment_screenshot' from request.
 
-    // Create new payment record
-    const newPayment = {
-      id: Date.now().toString(),
-      transactionId: `TXN${Date.now()}`,
-      user: registrationData.fullName,
-      email: registrationData.email,
-      event: "AI-Verse 4.0",
-      amount: `₹${enteredAmount}`,
-      method: "UPI",
-      status: "pending", // Needs admin verification
-      date: new Date().toISOString(),
-      screenshot: screenshotPreview, // Save the data URL
-      registrationId: registrationId
-    };
+      await paymentApi.create(formData);
 
-    // Save to localStorage for Admin Dashboard
-    const existingPayments = JSON.parse(localStorage.getItem("allPayments") || "[]");
-    localStorage.setItem("allPayments", JSON.stringify([newPayment, ...existingPayments]));
+      // Send Payment Confirmation Email (Backend should ideally do this, but keeping frontend logic for consistency with Register)
+      const registrationId = `AIVERSE4-${Date.now().toString(36).toUpperCase()}`; // Just for email display
 
-    sessionStorage.setItem("paymentSuccess", JSON.stringify({
-      registrationId,
-      amount: enteredAmount,
-      method: "upi",
-      timestamp: new Date().toISOString(),
-      screenshot: screenshotPreview
-    }));
+      toast.info("Sending payment confirmation...");
+      const emailResult = await sendPaymentConfirmationEmail(
+        registrationData.email,
+        registrationData.fullName,
+        "AI Verse 4.0",
+        `₹${enteredAmount}`,
+        registrationId
+      );
 
-    // Send Payment Confirmation Email
-    toast.info("Sending payment confirmation...");
-    const emailResult = await sendPaymentConfirmationEmail(
-      registrationData.email,
-      registrationData.fullName,
-      "AI Verse 4.0",
-      `₹${enteredAmount}`,
-      registrationId
-    );
+      if (emailResult.success) {
+        toast.success("Payment confirmation email sent!");
+      } else {
+        console.error("Payment email failed:", emailResult.error);
+        toast.warning("Payment saved, but email failed. Check EmailJS config.");
+      }
 
-    if (emailResult.success) {
-      toast.success("Payment confirmation email sent!");
-    } else {
-      console.error("Payment email failed:", emailResult.error);
-      toast.warning("Payment saved, but email failed. Check EmailJS config.");
+      toast.success("Payment proof uploaded successfully!");
+      navigate("/payment-success");
+    } catch (error) {
+      console.error("Payment error:", error);
+      toast.error("❌ Payment submission failed. Please try again.");
+    } finally {
+      setIsProcessing(false);
     }
-
-    toast.success("Payment proof uploaded successfully!");
-    navigate("/payment-success");
-    setIsProcessing(false);
   };
 
   if (!registrationData) return null;

@@ -15,8 +15,11 @@ const cardVariants = ["flip", "scale", "rotate"] as const;
 const eventInsights: Record<string, string> = {
   "Data Stargaze": "Data Stargaze was a breakthrough event that merged Astronomy with modern AI. Students explored real-time celestial tracking and learned how machine learning is revolutionizing our understanding of the universe.",
   "AI Verse": "The inaugural AI Verse set the foundation for our community. It was a pioneering effort to bridge the gap between academic theory and practical Data Science, sparking a new wave of student-led innovation.",
+  "AI Verse: The Genesis": "The inaugural AI Verse set the foundation for our community. It was a pioneering effort to bridge the gap between academic theory and practical Data Science, sparking a new wave of student-led innovation.",
   "AI Verse 2.0": "AI Verse 2.0 scaled our vision with advanced workshops on Neural Networks and Industry 4.0. It marked a significant milestone as we brought in global industry leaders to mentor our students.",
-  "AI Verse 3.0": "3.0 was a spectacle of Generative AI. We hosted one of the region's largest LLM hackathons, where participants built real-world applications using GPT and Diffusion models."
+  "AI Verse 2.0: Deep Vision": "AI Verse 2.0 scaled our vision with advanced workshops on Neural Networks and Industry 4.0. It marked a significant milestone as we brought in global industry leaders to mentor our students.",
+  "AI Verse 3.0": "3.0 was a spectacle of Generative AI. We hosted one of the region's largest LLM hackathons, where participants built real-world applications using GPT and Diffusion models.",
+  "AI Verse 3.0: The GenAI Era": "3.0 was a spectacle of Generative AI. We hosted one of the region's largest LLM hackathons, where participants built real-world applications using GPT and Diffusion models."
 };
 
 const EventsTimeline = () => {
@@ -33,7 +36,13 @@ const EventsTimeline = () => {
         const data = await response.json();
 
         // Sort by date ascending (oldest to newest journey)
-        const past = data.sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        const past = data
+          .filter((e: any) => e.status === 'completed' || e.status === 'Completed')
+          .sort((a: any, b: any) => {
+            const dateA = a.date ? new Date(a.date).getTime() : 0;
+            const dateB = b.date ? new Date(b.date).getTime() : 0;
+            return dateA - dateB;
+          });
 
         if (past.length > 0) {
           setEvents(past);
@@ -215,7 +224,7 @@ const EventsTimeline = () => {
                 </AnimatedCard>
 
                 {/* Description Panel for Event Insights */}
-                {eventInsights[event.name] && (
+                {(eventInsights[event.title] || eventInsights[event.name]) && (
                   <div className={cn(
                     "hidden md:block w-1/2 self-center",
                     index % 2 === 0 ? "md:pl-12" : "md:pr-12"
@@ -224,15 +233,18 @@ const EventsTimeline = () => {
                       initial={{ opacity: 0, x: index % 2 === 0 ? 20 : -20 }}
                       whileInView={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.8, duration: 0.5 }}
-                      whileHover={{ scale: 1.02 }}
-                      className="p-8 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md shadow-2xl group hover:border-primary/30 transition-all duration-500"
+                      whileHover={{ scale: 1.02, translateY: -5 }}
+                      className="p-10 rounded-[2.5rem] border border-blue-100/50 bg-white/40 backdrop-blur-xl shadow-[0_20px_50px_rgba(59,130,246,0.15)] group hover:border-primary/40 transition-all duration-500 relative overflow-hidden"
                     >
-                      <h4 className="text-xl font-display font-bold mb-3 text-primary flex items-center gap-2">
-                        <Sparkles className="w-5 h-5 animate-pulse text-accent" />
+                      {/* Decorative background glow */}
+                      <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/10 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity" />
+
+                      <h4 className="text-2xl font-display font-bold mb-4 text-blue-600 flex items-center gap-3">
+                        <Sparkles className="w-6 h-6 text-blue-500 animate-pulse" />
                         Event Insight
                       </h4>
-                      <p className="text-sm text-primary/80 leading-relaxed font-medium">
-                        {eventInsights[event.name]}
+                      <p className="text-lg text-slate-600 leading-relaxed font-medium">
+                        {eventInsights[event.title] || eventInsights[event.name]}
                       </p>
                     </motion.div>
                   </div>

@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/form";
 import { Link } from "react-router-dom";
 import { sendRegistrationEmail } from "@/services/emailService";
+import { registrationApi } from "@/lib/api";
 
 const registrationSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters").max(100, "Name must be less than 100 characters"),
@@ -71,14 +72,18 @@ const Register = () => {
     },
   });
 
+
+
+  // ... inside component ...
+
   const onSubmit = async (data: RegistrationFormData) => {
     setIsSubmitting(true);
 
     try {
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Submit to backend
+      await registrationApi.create(data);
 
-      // Save registration data
+      // Save registration data for Payment page
       sessionStorage.setItem("registrationData", JSON.stringify(data));
 
       // Save persistent user profile
@@ -95,7 +100,7 @@ const Register = () => {
         avatar: ""
       }));
 
-      // Generate unique registration ID
+      // Generate unique registration ID (Client side ID for email, backend generates its own but we use this for display)
       const registrationId = `REG-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
       // Send automatic registration confirmation email
@@ -118,8 +123,15 @@ const Register = () => {
 
       toast.success("Registration details saved! Proceeding to payment...");
       navigate("/payment");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Registration error:", error);
+      if (error.response?.data?.message === 'Already registered') {
+        // If already registered, still proceed to payment (maybe they missed payment step)
+        toast.info("You are already registered! Proceeding to payment...");
+        sessionStorage.setItem("registrationData", JSON.stringify(data));
+        navigate("/payment");
+        return;
+      }
       toast.error("❌ Registration failed. Please try again.");
     } finally {
       setIsSubmitting(false);

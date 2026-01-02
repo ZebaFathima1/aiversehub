@@ -8,6 +8,8 @@ class User(AbstractUser):
     full_name = models.CharField(max_length=255)
     phone = models.CharField(max_length=15, blank=True, null=True)
     college = models.CharField(max_length=255, blank=True, null=True)
+    department = models.CharField(max_length=100, blank=True, null=True)
+    year_of_study = models.CharField(max_length=50, blank=True, null=True)
     profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
     is_admin = models.BooleanField(default=False, help_text='Admin dashboard access')
     created_at = models.DateTimeField(auto_now_add=True)

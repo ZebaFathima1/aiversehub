@@ -21,6 +21,7 @@ import AdminPayments from "./pages/AdminPayments";
 import AdminSettings from "./pages/AdminSettings";
 import EmailTest from "./pages/EmailTest";
 import EventGalleryPage from "./pages/EventGalleryPage";
+import AIVerse4 from "./pages/AIVerse4";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
 
             <Route path="/event/ai-verse-4" element={<EventDetails />} />
+            <Route path="/ai-verse-4" element={<AIVerse4 />} />
             <Route path="/register" element={<Register />} />
             <Route path="/payment" element={<Payment />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />

@@ -39,6 +39,8 @@ interface User {
     email: string;
     full_name: string;
     college?: string;
+    department?: string;
+    year_of_study?: string;
     profile_image_url?: string;
     is_admin: boolean;
     is_active: boolean;
@@ -126,11 +128,37 @@ export default function UsersTable() {
                                 <Button variant="outline" size="icon" onClick={fetchUsers} disabled={loading}>
                                     <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
                                 </Button>
-                                <Button className="gap-2">
+                                <Button className="gap-2" onClick={() => {
+                                    setSelectedUser(null); // Clear selection for creating new
+                                    setDialogOpen(true);
+                                }}>
                                     <UserPlus className="h-4 w-4" />
                                     Add User
                                 </Button>
-                                <Button variant="outline" className="gap-2">
+                                <Button variant="outline" className="gap-2" onClick={() => {
+                                    const headers = ["ID", "Username", "Email", "Full Name", "Role", "Department", "Joined Date"];
+                                    const csvContent = [
+                                        headers.join(","),
+                                        ...users.map(u => [
+                                            u.id,
+                                            u.username,
+                                            u.email,
+                                            `"${u.full_name}"`,
+                                            u.is_admin ? "Admin" : "User",
+                                            `"${u.college || "N/A"}"`,
+                                            new Date(u.joinedDate || "").toLocaleDateString()
+                                        ].join(","))
+                                    ].join("\n");
+
+                                    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+                                    const url = URL.createObjectURL(blob);
+                                    const link = document.createElement("a");
+                                    link.setAttribute("href", url);
+                                    link.setAttribute("download", "users_export.csv");
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    document.body.removeChild(link);
+                                }}>
                                     <Download className="h-4 w-4" />
                                     Export
                                 </Button>
@@ -192,7 +220,7 @@ export default function UsersTable() {
                                                     </Badge>
                                                 </TableCell>
                                                 <TableCell className="text-muted-foreground">
-                                                    {user.college || "N/A"}
+                                                    {user.department || user.college || "N/A"}
                                                 </TableCell>
                                                 <TableCell>{user.total_registrations || 0}</TableCell>
                                                 <TableCell className="text-right">
@@ -235,11 +263,12 @@ export default function UsersTable() {
                 </Card>
             </motion.div>
 
-            {selectedUser && (
+            {selectedUser !== undefined && ( // Allow null for create mode
                 <UserDetailsDialog
                     user={selectedUser as any}
                     open={dialogOpen}
                     onOpenChange={setDialogOpen}
+                    onUserAdded={fetchUsers}
                 />
             )}
         </>
