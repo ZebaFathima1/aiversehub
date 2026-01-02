@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, X, ChevronLeft, ChevronRight, ZoomIn, RefreshCw } from "lucide-react";
+import { ArrowLeft, X, ChevronLeft, ChevronRight, ZoomIn, RefreshCw, Camera } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 import { eventApi, getImageUrl } from "@/lib/api";
 import { eventGalleries } from "@/data/galleryData";
@@ -146,7 +146,10 @@ const EventGalleryPage = () => {
                                 transition={{ delay: index * 0.05 }}
                                 whileHover={{ y: -5 }}
                             >
-                                <div className="relative aspect-[4/3] rounded-2xl overflow-hidden group">
+                                <div className="relative aspect-[4/3] sm:aspect-square md:aspect-[4/3] lg:aspect-video rounded-2xl overflow-hidden group shadow-lg">
+                                    <motion.div
+                                        className="absolute inset-0 bg-primary/5 group-hover:bg-transparent transition-colors z-10"
+                                    />
                                     <img
                                         src={getImageUrl(image.image || image.image_url)}
                                         alt={image.caption || image.title || title}
@@ -161,13 +164,14 @@ const EventGalleryPage = () => {
                                     <div className="absolute inset-0 bg-gradient-to-t from-foreground/90 via-foreground/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
 
                                     {/* Content */}
-                                    <div className="absolute inset-0 flex flex-col justify-between p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        <div className="flex justify-end">
-                                            <div className="w-10 h-10 rounded-full bg-background/20 backdrop-blur-sm flex items-center justify-center">
-                                                <ZoomIn className="w-5 h-5 text-primary-foreground" />
+                                    <div className="absolute inset-0 flex flex-col justify-end p-6 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500 z-20">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <div className="w-8 h-8 rounded-full bg-primary/20 backdrop-blur-md flex items-center justify-center">
+                                                <Camera className="w-4 h-4 text-primary" />
                                             </div>
+                                            <span className="text-xs font-bold text-primary-foreground tracking-wider uppercase">Shot {index + 1}</span>
                                         </div>
-                                        <p className="text-primary-foreground font-semibold">{image.caption || image.title}</p>
+                                        <p className="text-white font-display font-bold text-lg leading-tight">{image.caption || image.title || "Capture"}</p>
                                     </div>
                                 </div>
                             </motion.div>

@@ -161,7 +161,7 @@ const EventGallery = () => {
                         whileHover={{ scale: 1.05 }}
                       >
                         <Camera className="w-4 h-4" />
-                        {event.images?.length || 0} Photos
+                        {(event.images?.length || event.gallery_images?.length || 0)} Photos
                       </motion.div>
 
                       {/* Event Info Overlay */}
