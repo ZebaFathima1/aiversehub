@@ -39,6 +39,7 @@ export const pastEvents: Event[] = [
         registered: 180,
         revenue: 27000,
         price: 150,
+        image: "/gallery/datastargaze/cover.jpg",
         status: "completed",
     },
     {
@@ -55,6 +56,7 @@ export const pastEvents: Event[] = [
         registered: 245,
         revenue: 49000,
         price: 200,
+        image: "/gallery/aiverse1/cover.jpg",
         status: "completed",
     },
     {
@@ -71,6 +73,7 @@ export const pastEvents: Event[] = [
         registered: 380,
         revenue: 114000,
         price: 300,
+        image: "/gallery/aiverse2/cover.jpg",
         status: "completed",
     },
     {
@@ -87,6 +90,7 @@ export const pastEvents: Event[] = [
         registered: 485,
         revenue: 242000,
         price: 499,
+        image: "/gallery/aiverse3/cover.jpg",
         status: "completed",
     },
 ];
@@ -110,7 +114,7 @@ export const upcomingEvents: Event[] = [
         registered: 1, // Only Test User
         revenue: 499, // 1 * 499
         price: 1499,
-        image: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=600&h=400&fit=crop",
+        image: "/gallery/aiverse4/cover.jpg",
         status: "upcoming",
         featured: true,
     },

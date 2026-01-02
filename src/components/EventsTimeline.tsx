@@ -57,13 +57,30 @@ const EventsTimeline = () => {
   }, []);
 
   const getBestImage = (event: any) => {
-    // Priority: Computed cover image URL from backend -> original image field -> first gallery image
+    // Map slugs to gallery covers for reliability
+    const galleryMap: Record<string, string> = {
+      "data-stargaze": "/gallery/datastargaze/cover.jpg",
+      "data-stargaze-2021": "/gallery/datastargaze/cover.jpg",
+      "ai-verse": "/gallery/aiverse1/cover.jpg",
+      "ai-verse-2022": "/gallery/aiverse1/cover.jpg",
+      "ai-verse-2": "/gallery/aiverse2/cover.jpg",
+      "ai-verse-2-2023": "/gallery/aiverse2/cover.jpg",
+      "ai-verse-3": "/gallery/aiverse3/cover.jpg",
+      "ai-verse-3-2024": "/gallery/aiverse3/cover.jpg",
+      "ai-verse-4": "/gallery/aiverse4/cover.jpg",
+      "ai-verse-4-2025": "/gallery/aiverse4/cover.jpg"
+    };
+
+    const slug = event.slug || event.id;
+    if (galleryMap[slug]) return galleryMap[slug];
+
+    // Fallbacks
     if (event.cover_image_url) return event.cover_image_url;
     if (event.image) return getImageUrl(event.image);
     if (event.images && event.images.length > 0) {
       return getImageUrl(event.images[0].image_url);
     }
-    return "/placeholder.png";
+    return "/gallery/datastargaze/cover.jpg"; // High quality fallback
   };
 
   return (
@@ -174,6 +191,10 @@ const EventsTimeline = () => {
                         className="w-full h-full object-cover"
                         whileHover={{ scale: 1.1 }}
                         transition={{ duration: 0.6 }}
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = "/gallery/datastargaze/cover.jpg";
+                        }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-card to-transparent" />
                       <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
