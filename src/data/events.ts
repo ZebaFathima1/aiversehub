@@ -43,9 +43,9 @@ export const pastEvents: Event[] = [
         status: "completed",
     },
     {
-        id: "ai-verse-2022",
-        name: "AI Verse",
-        title: "AI Verse: The Genesis",
+        id: "ai-verse-1",
+        name: "AI Verse 1.0",
+        title: "AI Verse 1.0: The Genesis",
         year: "2022",
         date: "2022-04-10",
         venue: "CSE Seminar Hall",

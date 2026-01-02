@@ -23,20 +23,19 @@ export const eventGalleries: EventGalleryData[] = [
         coverImage: "/gallery/datastargaze/cover.jpg",
         images: [
             { id: 1, src: "/gallery/datastargaze/cover.jpg", title: "Event Cover" },
-            { id: 2, src: "/gallery/datastargaze/banner.png", title: "Event Banner" },
             { id: 3, src: "/gallery/datastargaze/speaker.png", title: "Expert Session" },
             { id: 4, src: "/gallery/datastargaze/award.png", title: "Memento Presentation" },
             { id: 5, src: "/gallery/datastargaze/session.png", title: "Workshop Session" },
         ],
     },
     {
-        id: "ai-verse",
-        name: "AI Verse",
+        id: "ai-verse-1",
+        name: "AI Verse 1.0",
         date: "November 2022",
         description: "A Two Day Workshop on AI & Machine Learning",
         coverImage: "/gallery/aiverse1/cover.jpg",
         images: [
-            { id: 1, src: "/gallery/aiverse1/cover.jpg", title: "AI Verse The Genesis" },
+            { id: 1, src: "/gallery/aiverse1/cover.jpg", title: "AI Verse 1.0 - The Genesis" },
         ],
     },
     {
@@ -66,16 +65,6 @@ export const eventGalleries: EventGalleryData[] = [
             { id: 6, src: "/gallery/aiverse3/inauguration.png", title: "Inauguration Ceremony" },
             { id: 7, src: "/gallery/aiverse3/group_robot.jpg", title: "Group Photo with AI Robot" },
             { id: 8, src: "/gallery/aiverse3/guests.jpg", title: "Chief Guests" },
-        ],
-    },
-    {
-        id: "ai-verse-4",
-        name: "AI Verse 4.0",
-        date: "2026",
-        description: "The Next Frontier of Artificial Intelligence",
-        coverImage: "/gallery/aiverse4/cover.jpg",
-        images: [
-            { id: 1, src: "/gallery/aiverse4/cover.jpg", title: "AI Verse 4.0 Preview" },
         ],
     },
 ];

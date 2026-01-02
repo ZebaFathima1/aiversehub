@@ -15,7 +15,9 @@ const cardVariants = ["flip", "scale", "rotate"] as const;
 const eventInsights: Record<string, string> = {
   "Data Stargaze": "Data Stargaze was a breakthrough event that merged Astronomy with modern AI. Students explored real-time celestial tracking and learned how machine learning is revolutionizing our understanding of the universe.",
   "AI Verse": "The inaugural AI Verse set the foundation for our community. It was a pioneering effort to bridge the gap between academic theory and practical Data Science, sparking a new wave of student-led innovation.",
+  "AI Verse 1.0": "The inaugural AI Verse set the foundation for our community. It was a pioneering effort to bridge the gap between academic theory and practical Data Science, sparking a new wave of student-led innovation.",
   "AI Verse: The Genesis": "The inaugural AI Verse set the foundation for our community. It was a pioneering effort to bridge the gap between academic theory and practical Data Science, sparking a new wave of student-led innovation.",
+  "AI Verse 1.0: The Genesis": "The inaugural AI Verse set the foundation for our community. It was a pioneering effort to bridge the gap between academic theory and practical Data Science, sparking a new wave of student-led innovation.",
   "AI Verse 2.0": "AI Verse 2.0 scaled our vision with advanced workshops on Neural Networks and Industry 4.0. It marked a significant milestone as we brought in global industry leaders to mentor our students.",
   "AI Verse 2.0: Deep Vision": "AI Verse 2.0 scaled our vision with advanced workshops on Neural Networks and Industry 4.0. It marked a significant milestone as we brought in global industry leaders to mentor our students.",
   "AI Verse 3.0": "3.0 was a spectacle of Generative AI. We hosted one of the region's largest LLM hackathons, where participants built real-world applications using GPT and Diffusion models.",
@@ -62,6 +64,7 @@ const EventsTimeline = () => {
       "data-stargaze": "/gallery/datastargaze/cover.jpg",
       "data-stargaze-2021": "/gallery/datastargaze/cover.jpg",
       "ai-verse": "/gallery/aiverse1/cover.jpg",
+      "ai-verse-1": "/gallery/aiverse1/cover.jpg",
       "ai-verse-2022": "/gallery/aiverse1/cover.jpg",
       "ai-verse-2": "/gallery/aiverse2/cover.jpg",
       "ai-verse-2-2023": "/gallery/aiverse2/cover.jpg",

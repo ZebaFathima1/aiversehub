@@ -27,7 +27,7 @@ const EventGallery = () => {
         const response = await eventApi.getAll();
         if (response.data && response.data.results) {
           const data = response.data.results;
-          const targetSlugs = ['data-stargaze', 'ai-verse', 'ai-verse-2', 'ai-verse-3', 'ai-verse-4'];
+          const targetSlugs = ['data-stargaze', 'ai-verse-1', 'ai-verse-2', 'ai-verse-3'];
 
           const galleryEvents = data
             .filter((e: any) => targetSlugs.includes(e.slug))
