@@ -11,6 +11,7 @@ const EventGallery = () => {
   const navigate = useNavigate();
   const [events, setEvents] = useState<any[]>(eventGalleries.map(g => ({
     id: g.id,
+    slug: g.id,
     title: g.name,
     name: g.name,
     date: g.date,
@@ -26,7 +27,7 @@ const EventGallery = () => {
         const response = await eventApi.getAll();
         if (response.data && response.data.results) {
           const data = response.data.results;
-          const targetSlugs = ['data-stargaze', 'ai-verse-1', 'ai-verse-2', 'ai-verse-3'];
+          const targetSlugs = ['data-stargaze', 'ai-verse', 'ai-verse-2', 'ai-verse-3', 'ai-verse-4'];
 
           const galleryEvents = data
             .filter((e: any) => targetSlugs.includes(e.slug))
@@ -145,6 +146,10 @@ const EventGallery = () => {
                         src={getCoverImage(event)}
                         alt={event.name || event.title}
                         className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = "/gallery/datastargaze/cover.jpg"; // Reliable fallback
+                        }}
                       />
 
                       {/* Gradient Overlay */}

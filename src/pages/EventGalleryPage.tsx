@@ -151,6 +151,10 @@ const EventGalleryPage = () => {
                                         src={getImageUrl(image.image || image.image_url)}
                                         alt={image.caption || image.title || title}
                                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                        onError={(e) => {
+                                            const target = e.target as HTMLImageElement;
+                                            target.src = "/gallery/datastargaze/cover.jpg";
+                                        }}
                                     />
 
                                     {/* Overlay */}
@@ -227,6 +231,10 @@ const EventGalleryPage = () => {
                                 src={getImageUrl(selectedImage.image || selectedImage.image_url)}
                                 alt={selectedImage.caption || selectedImage.title}
                                 className="max-w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl"
+                                onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.src = "/gallery/datastargaze/cover.jpg";
+                                }}
                             />
 
                             {/* Caption */}
