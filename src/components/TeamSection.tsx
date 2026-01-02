@@ -44,15 +44,12 @@ const faculty: TeamMember[] = [
 const coordinators = [
   {
     name: "Mirza Amaanullah Baig",
-    role: "Website Coordinator",
   },
   {
     name: "Mohammad Riyaz",
-    role: "Website Coordinator",
   },
   {
     name: "Pardhu",
-    role: "Website Coordinator",
   },
 ];
 
@@ -199,10 +196,7 @@ const TeamSection = () => {
                   <h4 className="text-xl sm:text-2xl font-display font-bold text-foreground group-hover:text-primary transition-colors duration-300">
                     {member.name}
                   </h4>
-                  <div className="w-12 h-1 bg-gradient-to-r from-primary to-transparent rounded-full mt-1 mb-2 transform origin-center transition-all duration-300 group-hover:w-20" />
-                  <p className="text-sm font-medium text-muted-foreground tracking-widest uppercase">
-                    {member.role}
-                  </p>
+                  <div className="w-12 h-1 bg-gradient-to-r from-primary to-transparent rounded-full mt-1 transform origin-center transition-all duration-300 group-hover:w-20" />
                 </div>
               </motion.div>
             ))}
