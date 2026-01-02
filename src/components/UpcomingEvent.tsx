@@ -18,7 +18,7 @@ const UpcomingEvent = () => {
     tagline: event.tagline || "The Next Frontier of Artificial Intelligence",
     date: formatDateRange(event.date, event.endDate),
     venue: event.venue,
-    time: event.time || "9:00 AM - 6:00 PM",
+    time: event.time || "3:00 PM - 6:00 PM",
     highlights: [
       { icon: Rocket, title: "AI Innovation Lab", description: "Hands-on experience with latest AI tools" },
       { icon: Zap, title: "Tech Talks", description: "Industry experts sharing insights" },

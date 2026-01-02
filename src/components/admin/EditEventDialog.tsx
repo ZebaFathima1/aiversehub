@@ -259,7 +259,7 @@ export default function EditEventDialog({
                             <Input
                                 id="time"
                                 {...register("time")}
-                                placeholder="9:00 AM - 6:00 PM"
+                                placeholder="3:00 PM - 6:00 PM"
                             />
                         </div>
                     </div>

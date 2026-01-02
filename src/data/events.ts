@@ -101,7 +101,7 @@ export const upcomingEvents: Event[] = [
         date: "2026-01-21",
         endDate: "2026-01-23",
         venue: "CSE Department Auditorium",
-        time: "9:00 AM - 6:00 PM",
+        time: "3:00 PM - 6:00 PM",
         description: "The next frontier of Artificial Intelligence! Join us for AI Verse 4.0 featuring cutting-edge workshops on LLMs, Agentic AI, and the latest breakthroughs in machine learning.",
         tagline: "The Next Frontier of Artificial Intelligence",
         highlights: ["LLM Workshop", "Agentic AI Lab", "Industry Experts", "Networking Sessions"],

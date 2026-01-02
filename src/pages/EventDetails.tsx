@@ -169,7 +169,7 @@ const EventDetails = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <Clock className="w-5 h-5 text-primary" />
-                      <span>9:00 AM - 7:00 PM</span>
+                      <span>3:00 PM - 6:00 PM</span>
                     </div>
                   </motion.div>
 
@@ -180,7 +180,7 @@ const EventDetails = () => {
                     transition={{ delay: 0.6 }}
                   >
                     <p className="text-sm text-muted-foreground mb-4">Event starts in</p>
-                    <CountdownTimer targetDate={new Date("2026-01-21T09:00:00")} />
+                    <CountdownTimer targetDate={new Date("2026-01-21T15:00:00")} />
                   </motion.div>
                 </div>
               </ScrollReveal>
