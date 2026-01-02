@@ -149,7 +149,7 @@ const PaymentSuccess = () => {
                     <div className="flex flex-col md:flex-row justify-center md:justify-start gap-6">
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <Calendar className="w-5 h-5 text-primary" />
-                        <span>March 15-16, 2025</span>
+                        <span>January 21-23, 2026</span>
                       </div>
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <MapPin className="w-5 h-5 text-primary" />

@@ -40,7 +40,7 @@ const EmailTest = () => {
                 from_email: "fathimazeba882@gmail.com",
                 from_name: "AI-Verse Hub Team",
                 event_name: "AI Verse 4.0",
-                event_date: "March 15-16, 2025",
+                event_date: "January 21-23, 2026",
                 event_venue: "CSE Department Auditorium",
                 registration_id: `REG-${Date.now()}-TEST`,
                 reply_to: "fathimazeba882@gmail.com",
@@ -228,7 +228,7 @@ const EmailTest = () => {
                                             </div>
                                             <div>
                                                 <Label className="text-muted-foreground">Event Date</Label>
-                                                <p className="font-semibold">March 15-16, 2025</p>
+                                                <p className="font-semibold">January 21-23, 2026</p>
                                             </div>
                                             <div>
                                                 <Label className="text-muted-foreground">Venue</Label>
@@ -246,7 +246,7 @@ const EmailTest = () => {
                                                 <p className="font-semibold">Subject: Registration Confirmed - AI Verse 4.0</p>
                                                 <p className="text-muted-foreground">Hi Participant,</p>
                                                 <p className="text-muted-foreground">Thank you for registering for AI Verse 4.0!</p>
-                                                <p className="text-muted-foreground">Event Details: March 15-16, 2025 at CSE Department Auditorium</p>
+                                                <p className="text-muted-foreground">Event Details: January 21-23, 2026 at CSE Department Auditorium</p>
                                             </div>
                                         </div>
 

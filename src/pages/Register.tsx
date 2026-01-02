@@ -109,7 +109,7 @@ const Register = () => {
         data.email,              // User's email
         data.fullName,           // User's name
         "AI Verse 4.0",          // Event name
-        "March 15-16, 2025",     // Event date
+        "January 21-23, 2026",     // Event date
         "CSE Department Auditorium", // Event venue
         registrationId           // Registration ID
       );
@@ -347,7 +347,7 @@ const Register = () => {
                         <div className="flex items-center justify-between">
                           <div>
                             <h3 className="font-semibold text-foreground">AI Verse 4.0</h3>
-                            <p className="text-sm text-muted-foreground">March 15-16, 2025</p>
+                            <p className="text-sm text-muted-foreground">January 21-23, 2026</p>
                           </div>
                           <div className="text-right">
                             <p className="text-2xl font-display font-bold gradient-text">₹459</p>

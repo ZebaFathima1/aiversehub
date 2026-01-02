@@ -1,14 +1,14 @@
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { 
-  ArrowLeft, 
-  ArrowRight, 
-  Calendar, 
-  MapPin, 
-  Clock, 
-  Trophy, 
-  Users, 
+import {
+  ArrowLeft,
+  ArrowRight,
+  Calendar,
+  MapPin,
+  Clock,
+  Trophy,
+  Users,
   Sparkles,
   Mic,
   Code,
@@ -25,7 +25,7 @@ import { Button } from "@/components/ui/button";
 
 const eventSchedule = [
   {
-    day: "Day 1 - March 15, 2025",
+    day: "Day 1 - January 21, 2026",
     events: [
       { time: "09:00 AM", title: "Registration & Welcome", icon: Users },
       { time: "10:00 AM", title: "Inaugural Ceremony", icon: Sparkles },
@@ -37,13 +37,24 @@ const eventSchedule = [
     ],
   },
   {
-    day: "Day 2 - March 16, 2025",
+    day: "Day 2 - January 22, 2026",
     events: [
-      { time: "09:00 AM", title: "Hackathon Continues", icon: Code },
+      { time: "09:00 AM", title: "Project Prototyping", icon: Code },
+      { time: "11:00 AM", title: "Tech Talk: Agentic systems", icon: Brain },
+      { time: "01:00 PM", title: "Lunch Break", icon: Clock },
+      { time: "02:00 PM", title: "Mentorship Sessions", icon: Users },
+      { time: "04:00 PM", title: "Interim Review", icon: Mic },
+      { time: "06:00 PM", title: "Day 2 Wrap-up", icon: Star },
+    ],
+  },
+  {
+    day: "Day 3 - January 23, 2026",
+    events: [
+      { time: "09:00 AM", title: "Final Polish & Testing", icon: Code },
       { time: "12:00 PM", title: "Project Submissions", icon: Award },
       { time: "01:00 PM", title: "Lunch Break", icon: Clock },
-      { time: "02:00 PM", title: "Panel Discussion: AI Ethics", icon: Users },
-      { time: "04:00 PM", title: "Final Presentations", icon: Mic },
+      { time: "02:00 PM", title: "Final Presentations", icon: Mic },
+      { time: "04:30 PM", title: "Panel: AI Ethics & Future", icon: Users },
       { time: "05:30 PM", title: "Prize Distribution", icon: Trophy },
       { time: "06:30 PM", title: "Closing Ceremony", icon: Sparkles },
     ],
@@ -89,21 +100,21 @@ const EventDetails = () => {
     <>
       <Helmet>
         <title>AI Verse 4.0 - Event Details | CSE (AIML)</title>
-        <meta 
-          name="description" 
-          content="AI Verse 4.0 - The Next Frontier of Artificial Intelligence. March 15-16, 2025. Workshops, hackathons, expert talks, and prizes worth ₹50,000+." 
+        <meta
+          name="description"
+          content="AI Verse 4.0 - The Next Frontier of Artificial Intelligence. January 21-23, 2026. Workshops, hackathons, expert talks, and prizes worth ₹50,000+."
         />
       </Helmet>
 
       <PageTransition>
         <div className="min-h-screen bg-background">
           <Navbar />
-          
+
           <main className="pt-24 pb-16">
             <div className="container mx-auto px-4">
               {/* Back Link */}
-              <button 
-                onClick={() => window.history.back()} 
+              <button
+                onClick={() => window.history.back()}
                 className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8"
               >
                 <ArrowLeft className="w-4 h-4" />
@@ -113,7 +124,7 @@ const EventDetails = () => {
               {/* Hero Section */}
               <ScrollReveal>
                 <div className="text-center mb-12">
-                  <motion.span 
+                  <motion.span
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-6"
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -122,8 +133,8 @@ const EventDetails = () => {
                     <Sparkles className="w-4 h-4" />
                     Upcoming Event
                   </motion.span>
-                  
-                  <motion.h1 
+
+                  <motion.h1
                     className="text-4xl md:text-6xl font-display font-bold mb-4"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -131,8 +142,8 @@ const EventDetails = () => {
                   >
                     <span className="gradient-text">AI Verse 4.0</span>
                   </motion.h1>
-                  
-                  <motion.p 
+
+                  <motion.p
                     className="text-xl md:text-2xl text-muted-foreground mb-6"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -142,7 +153,7 @@ const EventDetails = () => {
                   </motion.p>
 
                   {/* Event Info */}
-                  <motion.div 
+                  <motion.div
                     className="flex flex-wrap justify-center gap-6 text-muted-foreground mb-8"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -150,11 +161,11 @@ const EventDetails = () => {
                   >
                     <div className="flex items-center gap-2">
                       <Calendar className="w-5 h-5 text-primary" />
-                      <span>March 15-16, 2025</span>
+                      <span>January 21-23, 2026</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <MapPin className="w-5 h-5 text-primary" />
-                      <span>MLRITM Campus</span>
+                      <span>CSE Department Auditorium</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Clock className="w-5 h-5 text-primary" />
@@ -169,7 +180,7 @@ const EventDetails = () => {
                     transition={{ delay: 0.6 }}
                   >
                     <p className="text-sm text-muted-foreground mb-4">Event starts in</p>
-                    <CountdownTimer targetDate={new Date("2025-03-15T09:00:00")} />
+                    <CountdownTimer targetDate={new Date("2026-01-21T09:00:00")} />
                   </motion.div>
                 </div>
               </ScrollReveal>
@@ -200,8 +211,8 @@ const EventDetails = () => {
                   <h2 className="text-3xl md:text-4xl font-display font-bold text-center mb-10">
                     <span className="gradient-text">Event Schedule</span>
                   </h2>
-                  
-                  <div className="grid md:grid-cols-2 gap-8">
+
+                  <div className="grid md:grid-cols-3 gap-8">
                     {eventSchedule.map((day, dayIndex) => (
                       <motion.div
                         key={dayIndex}
@@ -245,7 +256,7 @@ const EventDetails = () => {
                   <p className="text-center text-muted-foreground mb-10">
                     Compete for exciting cash prizes and recognition
                   </p>
-                  
+
                   <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
                     {prizes.map((prize, index) => (
                       <motion.div
@@ -260,17 +271,17 @@ const EventDetails = () => {
                         <div className={`w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br ${prize.color} flex items-center justify-center`}>
                           <Trophy className="w-8 h-8 text-white" />
                         </div>
-                        
+
                         {/* Position */}
                         <div className={`text-4xl font-display font-bold bg-gradient-to-r ${prize.color} bg-clip-text text-transparent mb-2`}>
                           {prize.position}
                         </div>
-                        
+
                         {/* Amount */}
                         <div className="text-3xl font-bold text-foreground mb-2">
                           {prize.amount}
                         </div>
-                        
+
                         {/* Label */}
                         <div className="text-muted-foreground">
                           {prize.label}
@@ -280,7 +291,7 @@ const EventDetails = () => {
                   </div>
 
                   {/* Additional Prizes */}
-                  <motion.div 
+                  <motion.div
                     className="mt-8 text-center"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -296,7 +307,7 @@ const EventDetails = () => {
 
               {/* Registration CTA */}
               <ScrollReveal>
-                <motion.div 
+                <motion.div
                   className="bg-gradient-to-br from-primary/10 via-background to-primary/5 rounded-3xl p-8 md:p-12 text-center border border-primary/20"
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -308,13 +319,13 @@ const EventDetails = () => {
                   <p className="text-muted-foreground mb-6 max-w-lg mx-auto">
                     Don't miss this opportunity to learn, build, and compete with the best minds in AI.
                   </p>
-                  
+
                   <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                     <div className="bg-card rounded-xl px-6 py-3 border border-border">
                       <p className="text-sm text-muted-foreground">Registration Fee</p>
                       <p className="text-2xl font-display font-bold gradient-text">₹499</p>
                     </div>
-                    
+
                     <Link to="/register">
                       <Button variant="gradient" size="xl" className="group">
                         Register Now

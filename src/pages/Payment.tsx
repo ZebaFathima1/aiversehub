@@ -288,7 +288,7 @@ const Payment = () => {
                         {/* Event Details */}
                         <div className="pb-4 border-b border-border">
                           <h3 className="font-semibold gradient-text">AI Verse 4.0</h3>
-                          <p className="text-sm text-muted-foreground">March 15-16, 2025</p>
+                          <p className="text-sm text-muted-foreground">January 21-23, 2026</p>
                         </div>
 
                         {/* Registrant Info */}
