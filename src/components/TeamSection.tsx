@@ -127,7 +127,7 @@ const TeamMemberCard = ({ member, index }: { member: TeamMember; index: number }
 
 const TeamSection = () => {
   return (
-    <section id="team" className="py-24 bg-muted/30 relative overflow-hidden">
+    <section id="team" className="py-24 bg-background relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0">
         <motion.div
@@ -182,27 +182,20 @@ const TeamSection = () => {
             </h3>
           </ScrollReveal>
 
-          <div className="grid sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          <div className="flex flex-wrap justify-center gap-x-12 gap-y-6 max-w-4xl mx-auto py-8">
             {coordinators.map((member, index) => (
-              <TiltCard key={member.name} className="h-full" tiltAmount={10}>
-                <motion.div
-                  className="glass-card rounded-2xl overflow-hidden h-full bg-card/80 border border-primary/10"
-                  initial={{ opacity: 0, y: 50 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1, type: "spring", stiffness: 100 }}
-                >
-                  {/* Empty White Image Placeholder */}
-                  <div className="h-48 bg-white" />
-
-                  {/* Info */}
-                  <div className="p-5 text-center">
-                    <h3 className="font-display font-bold text-lg text-foreground mb-1">
-                      {member.name}
-                    </h3>
-                  </div>
-                </motion.div>
-              </TiltCard>
+              <motion.div
+                key={member.name}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="text-center"
+              >
+                <h4 className="text-xl sm:text-2xl font-display font-bold text-foreground hover:text-primary transition-colors duration-300 cursor-default">
+                  {member.name}
+                </h4>
+              </motion.div>
             ))}
           </div>
         </div>

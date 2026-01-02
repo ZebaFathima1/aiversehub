@@ -323,7 +323,7 @@ const EventDetails = () => {
                   <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                     <div className="bg-card rounded-xl px-6 py-3 border border-border">
                       <p className="text-sm text-muted-foreground">Registration Fee</p>
-                      <p className="text-2xl font-display font-bold gradient-text">₹499</p>
+                      <p className="text-2xl font-display font-bold gradient-text">₹450</p>
                     </div>
 
                     <Link to="/register">

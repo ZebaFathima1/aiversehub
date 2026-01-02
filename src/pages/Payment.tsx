@@ -190,7 +190,7 @@ const Payment = () => {
                         </div>
                         <Input
                           type="number"
-                          placeholder="e.g. 459"
+                          placeholder="e.g. 450"
                           value={enteredAmount}
                           onChange={(e) => setEnteredAmount(e.target.value)}
                           className="text-lg"
@@ -311,7 +311,7 @@ const Payment = () => {
                         <div className="py-4 border-b border-border space-y-2">
                           <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">Registration Fee</span>
-                            <span>₹459</span>
+                            <span>₹450</span>
                           </div>
                           <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">Processing Fee</span>
@@ -322,7 +322,7 @@ const Payment = () => {
                         {/* Total */}
                         <div className="pt-4 flex justify-between items-center">
                           <span className="font-semibold">Total Amount</span>
-                          <span className="text-2xl font-display font-bold gradient-text">₹459</span>
+                          <span className="text-2xl font-display font-bold gradient-text">₹450</span>
                         </div>
 
                         {/* Features */}

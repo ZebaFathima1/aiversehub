@@ -24,7 +24,7 @@ const faqItems: FAQItem[] = [
   {
     id: 3,
     question: "What is the registration fee?",
-    answer: "The registration fee is ₹499 per participant. This includes access to all sessions, workshop materials, certificate of participation, lunch, and refreshments for both days.",
+    answer: "The registration fee is ₹450 per participant. This includes access to all sessions, workshop materials, certificate of participation, lunch, and refreshments for both days.",
   },
   {
     id: 4,

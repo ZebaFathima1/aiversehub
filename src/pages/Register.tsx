@@ -350,7 +350,7 @@ const Register = () => {
                             <p className="text-sm text-muted-foreground">January 21-23, 2026</p>
                           </div>
                           <div className="text-right">
-                            <p className="text-2xl font-display font-bold gradient-text">₹459</p>
+                            <p className="text-2xl font-display font-bold gradient-text">₹450</p>
                             <p className="text-xs text-muted-foreground">Registration Fee</p>
                           </div>
                         </div>

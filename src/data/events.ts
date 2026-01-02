@@ -112,8 +112,8 @@ export const upcomingEvents: Event[] = [
         participants: "500+",
         capacity: 500,
         registered: 1, // Only Test User
-        revenue: 499, // 1 * 499
-        price: 1499,
+        revenue: 450, // 1 * 450
+        price: 450,
         image: "/gallery/aiverse4/cover.jpg",
         status: "upcoming",
         featured: true,
