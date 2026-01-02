@@ -167,7 +167,10 @@ const Navbar = () => {
 
               {/* College Name - Highlighted */}
               <motion.span
-                className="text-[10px] sm:text-xs lg:text-lg font-bold text-slate-100 leading-tight tracking-wide line-clamp-1 drop-shadow-md"
+                className={cn(
+                  "text-[10px] sm:text-xs lg:text-lg font-bold leading-tight tracking-wide line-clamp-1 transition-colors duration-300",
+                  isScrolled ? "text-slate-900" : "text-slate-100 drop-shadow-md"
+                )}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.6, duration: 0.6 }}
